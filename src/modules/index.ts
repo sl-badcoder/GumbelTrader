@@ -1,7 +1,9 @@
 import { arithmeticModule } from "./arithmetic/arithmeticModule";
+import { sequenceModule } from "./sequences/sequenceModule";
 
 export const problemModules = {
-  arithmetic: arithmeticModule
+  arithmetic: arithmeticModule,
+  sequences: sequenceModule
 };
 
 export type ProblemModuleId = keyof typeof problemModules;

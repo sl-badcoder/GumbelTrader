@@ -8,32 +8,54 @@ import { ArithmeticSettingsPage } from "../features/arithmetic/ArithmeticSetting
 import { GamesPage } from "../features/home/GamesPage";
 import { HomePage } from "../features/home/HomePage";
 import { ResultsSummary } from "../features/results/ResultsSummary";
+import { SequenceSessionPage } from "../features/sequences/SequenceSessionPage";
+import { SequenceSettingsPage } from "../features/sequences/SequenceSettingsPage";
 import {
   defaultArithmeticSettings,
   normalizeArithmeticSettings
 } from "../modules/arithmetic/arithmeticSettings";
 import type { ArithmeticSettings } from "../modules/arithmetic/arithmeticTypes";
 import { availableProblemModules, problemModules } from "../modules";
+import {
+  defaultSequenceSettings,
+  normalizeSequenceSettings
+} from "../modules/sequences/sequenceSettings";
+import type { SequenceSettings } from "../modules/sequences/sequenceTypes";
 
-const settingsStorageKey = "math-practice:arithmetic-settings";
+const arithmeticSettingsStorageKey = "math-practice:arithmetic-settings";
+const sequenceSettingsStorageKey = "math-practice:sequence-settings";
+
+type RestartTarget =
+  | { moduleId: "arithmetic"; settings: ArithmeticSettings }
+  | { moduleId: "sequences"; settings: SequenceSettings };
 
 type AppView =
   | { name: "home" }
   | { name: "games" }
   | { name: "arithmetic-settings" }
   | { name: "arithmetic-session"; settings: ArithmeticSettings }
-  | { name: "results"; result: PracticeResult; settings: ArithmeticSettings };
+  | { name: "sequence-settings" }
+  | { name: "sequence-session"; settings: SequenceSettings }
+  | { name: "results"; result: PracticeResult; restartTarget: RestartTarget };
 
 export default function App() {
   const storage = useMemo(() => new BrowserStorageAdapter(), []);
   const [arithmeticSettings, setArithmeticSettings] = useState<ArithmeticSettings>(() =>
     loadArithmeticSettings(storage)
   );
+  const [sequenceSettings, setSequenceSettings] = useState<SequenceSettings>(() =>
+    loadSequenceSettings(storage)
+  );
   const [view, setView] = useState<AppView>({ name: "home" });
 
   const updateArithmeticSettings = (settings: ArithmeticSettings) => {
     setArithmeticSettings(settings);
-    storage.setItem(settingsStorageKey, JSON.stringify(settings));
+    storage.setItem(arithmeticSettingsStorageKey, JSON.stringify(settings));
+  };
+
+  const updateSequenceSettings = (settings: SequenceSettings) => {
+    setSequenceSettings(settings);
+    storage.setItem(sequenceSettingsStorageKey, JSON.stringify(settings));
   };
 
   const startArithmeticSession = (settings: ArithmeticSettings) => {
@@ -42,16 +64,26 @@ export default function App() {
     setView({ name: "arithmetic-session", settings: normalizedSettings });
   };
 
+  const startSequenceSession = (settings: SequenceSettings) => {
+    const normalizedSettings = normalizeSequenceSettings(settings);
+    updateSequenceSettings(normalizedSettings);
+    setView({ name: "sequence-session", settings: normalizedSettings });
+  };
+
+  const restartSession = (target: RestartTarget) => {
+    if (target.moduleId === "arithmetic") {
+      startArithmeticSession(target.settings);
+      return;
+    }
+
+    startSequenceSession(target.settings);
+  };
+
   const goHome = () => setView({ name: "home" });
   const goGames = () => setView({ name: "games" });
-  const goArithmeticSettings = () => setView({ name: "arithmetic-settings" });
 
   const isHome = view.name === "home";
   const isGames = view.name === "games";
-  const isArithmetic =
-    view.name === "arithmetic-settings" ||
-    view.name === "arithmetic-session" ||
-    (view.name === "results" && view.result.moduleId === problemModules.arithmetic.id);
 
   return (
     <div className="app-shell">
@@ -79,14 +111,6 @@ export default function App() {
           >
             Games
           </button>
-          <button
-            className={isArithmetic ? "nav-link active" : "nav-link"}
-            type="button"
-            aria-current={isArithmetic ? "page" : undefined}
-            onClick={goArithmeticSettings}
-          >
-            Arithmetic Practice
-          </button>
         </nav>
       </header>
       {view.name === "home" ? (
@@ -98,6 +122,11 @@ export default function App() {
           onSelectModule={(moduleId) => {
             if (moduleId === problemModules.arithmetic.id) {
               setView({ name: "arithmetic-settings" });
+              return;
+            }
+
+            if (moduleId === problemModules.sequences.id) {
+              setView({ name: "sequence-settings" });
             }
           }}
         />
@@ -114,13 +143,40 @@ export default function App() {
         <ArithmeticSessionPage
           settings={view.settings}
           onBack={() => setView({ name: "arithmetic-settings" })}
-          onFinish={(result) => setView({ name: "results", result, settings: view.settings })}
+          onFinish={(result) =>
+            setView({
+              name: "results",
+              result,
+              restartTarget: { moduleId: "arithmetic", settings: view.settings }
+            })
+          }
+        />
+      ) : null}
+      {view.name === "sequence-settings" ? (
+        <SequenceSettingsPage
+          settings={sequenceSettings}
+          onChange={updateSequenceSettings}
+          onStart={startSequenceSession}
+          onBack={goGames}
+        />
+      ) : null}
+      {view.name === "sequence-session" ? (
+        <SequenceSessionPage
+          settings={view.settings}
+          onBack={() => setView({ name: "sequence-settings" })}
+          onFinish={(result) =>
+            setView({
+              name: "results",
+              result,
+              restartTarget: { moduleId: "sequences", settings: view.settings }
+            })
+          }
         />
       ) : null}
       {view.name === "results" ? (
         <ResultsSummary
           result={view.result}
-          onRestart={() => startArithmeticSession(view.settings)}
+          onRestart={() => restartSession(view.restartTarget)}
           onHome={() => setView({ name: "home" })}
         />
       ) : null}
@@ -129,7 +185,7 @@ export default function App() {
 }
 
 function loadArithmeticSettings(storage: StorageAdapter): ArithmeticSettings {
-  const storedSettings = storage.getItem(settingsStorageKey);
+  const storedSettings = storage.getItem(arithmeticSettingsStorageKey);
 
   if (!storedSettings) {
     return defaultArithmeticSettings;
@@ -138,7 +194,22 @@ function loadArithmeticSettings(storage: StorageAdapter): ArithmeticSettings {
   try {
     return normalizeArithmeticSettings(JSON.parse(storedSettings) as ArithmeticSettings);
   } catch {
-    storage.removeItem(settingsStorageKey);
+    storage.removeItem(arithmeticSettingsStorageKey);
     return defaultArithmeticSettings;
+  }
+}
+
+function loadSequenceSettings(storage: StorageAdapter): SequenceSettings {
+  const storedSettings = storage.getItem(sequenceSettingsStorageKey);
+
+  if (!storedSettings) {
+    return defaultSequenceSettings;
+  }
+
+  try {
+    return normalizeSequenceSettings(JSON.parse(storedSettings) as SequenceSettings);
+  } catch {
+    storage.removeItem(sequenceSettingsStorageKey);
+    return defaultSequenceSettings;
   }
 }

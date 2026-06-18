@@ -4,8 +4,9 @@ A small, modular math practice web app built with **React**, **Vite**, and
 **TypeScript**.
 
 Gumbel Math is designed as a simple place to practice mathematical speed,
-accuracy, and problem solving. The first module is **Arithmetic Practice**, with
-a structure that makes it straightforward to add more games later.
+accuracy, and problem solving. It starts with **Arithmetic Practice** and
+**Sequence Practice**, with a structure that makes it straightforward to add more
+games later.
 
 ---
 
@@ -16,6 +17,7 @@ a structure that makes it straightforward to add more games later.
 | 🏠 Home page | Introduces the project with a clean, classic layout |
 | 🎮 Games page | Lists available practice modules from the module registry |
 | ➕ Arithmetic Practice | Timed drills for addition, subtraction, multiplication, and division |
+| 🔢 Sequence Practice | Find the missing sixth number from five visible sequence terms |
 | ⚙️ Settings screen | Configure duration, operators, and number range before starting |
 | ⌨️ Auto-submit | Correct answers advance immediately when typed exactly |
 | 📊 Results | Shows score, attempts, correct answers, and accuracy |
@@ -164,6 +166,7 @@ This keeps problem generation and validation outside React components.
 | Module | Description | Status |
 | --- | --- | --- |
 | Arithmetic Practice | Timed arithmetic drills with configurable operators and number ranges | ✅ Available |
+| Sequence Practice | Timed sequence drills with easy, medium, and hard pattern sets | ✅ Available |
 
 Planned module ideas:
 
@@ -215,6 +218,8 @@ Current test coverage includes:
 | --- | --- |
 | Arithmetic generator | Deterministic prompt generation and whole-number division |
 | Arithmetic validator | Correct, incorrect, and invalid numeric answers |
+| Sequence generator | Five visible values, sixth answer, and difficulty-specific patterns |
+| Sequence validator | Correct, incorrect, and invalid numeric answers |
 | Practice hook | Auto-submit only on exact correct answers |
 
 Run tests with:
@@ -249,4 +254,3 @@ keeping the implementation lightweight and easy to change.
 | `npm test` | Run Vitest tests |
 | `npm run build` | Type-check and build for production |
 | `npm run preview` | Preview the production build locally |
-

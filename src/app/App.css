@@ -295,10 +295,26 @@ input {
   gap: 6px;
 }
 
-.checkbox-row {
+.difficulty-list {
+  display: grid;
+  gap: 10px;
+}
+
+.checkbox-row,
+.radio-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 7px;
+}
+
+.radio-row strong,
+.radio-row small {
+  display: block;
+}
+
+.radio-row small {
+  color: #555555;
+  line-height: 1.4;
 }
 
 .range-grid {
