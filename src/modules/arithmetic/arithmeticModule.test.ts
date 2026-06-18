@@ -40,6 +40,22 @@ describe("arithmeticModule", () => {
     expect(prompt.left / prompt.right).toBe(prompt.answer);
   });
 
+  it("does not generate negative subtraction answers", () => {
+    const session = arithmeticModule.createSession({
+      durationSeconds: 30,
+      enabledOperators: ["subtraction"],
+      minNumber: 1,
+      maxNumber: 10
+    });
+    const randomValues = [0, 0, 0.9];
+    const prompt = generateArithmeticPrompt(session, () => randomValues.shift() ?? 0);
+
+    expect(prompt.operator).toBe("subtraction");
+    expect(prompt.left).toBeGreaterThanOrEqual(prompt.right);
+    expect(prompt.answer).toBeGreaterThanOrEqual(0);
+    expect(prompt.text).toBe("10 - 1");
+  });
+
   it("validates numeric answers", () => {
     const prompt = {
       left: 4,

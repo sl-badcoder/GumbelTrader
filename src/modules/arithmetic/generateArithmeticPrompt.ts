@@ -26,8 +26,12 @@ export function generateArithmeticPrompt(
     return generateDivisionPrompt(session, random);
   }
 
-  const left = randomIntInclusive(settings.minNumber, settings.maxNumber, random);
-  const right = randomIntInclusive(settings.minNumber, settings.maxNumber, random);
+  const firstNumber = randomIntInclusive(settings.minNumber, settings.maxNumber, random);
+  const secondNumber = randomIntInclusive(settings.minNumber, settings.maxNumber, random);
+  const [left, right] =
+    operator === "subtraction"
+      ? [Math.max(firstNumber, secondNumber), Math.min(firstNumber, secondNumber)]
+      : [firstNumber, secondNumber];
   const answer = calculateAnswer(left, right, operator);
 
   return {
