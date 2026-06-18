@@ -1,0 +1,435 @@
+:root {
+  color: #222222;
+  background: #eeeeea;
+  font-family: Georgia, "Times New Roman", serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-header {
+  border-bottom: 1px solid #999999;
+  background: #f7f7f2;
+}
+
+.masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  width: min(880px, calc(100% - 28px));
+  margin: 0 auto;
+  padding: 14px 0 10px;
+}
+
+.masthead p {
+  margin: 0;
+  color: #555555;
+  font-size: 0.95rem;
+}
+
+.site-title {
+  border: 0;
+  padding: 0;
+  color: #222222;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.top-nav {
+  border-top: 1px solid #c8c8bf;
+  background: #e4e4dc;
+}
+
+.top-nav {
+  display: flex;
+  gap: 0;
+  width: min(880px, calc(100% - 28px));
+  margin: 0 auto;
+}
+
+.nav-link {
+  border: 0;
+  border-right: 1px solid #b4b4aa;
+  padding: 7px 12px;
+  color: #222222;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.nav-link:first-child {
+  border-left: 1px solid #b4b4aa;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background: #fbfbf7;
+  color: #064c8f;
+}
+
+.page {
+  width: min(880px, calc(100% - 28px));
+  margin: 26px auto 48px;
+}
+
+.narrow-page {
+  width: min(640px, calc(100% - 28px));
+}
+
+.intro,
+.game-list,
+.panel,
+.card {
+  border: 1px solid #aaaaaa;
+  background: #fbfbf7;
+  padding: 18px;
+}
+
+.intro {
+  margin-bottom: 18px;
+}
+
+.intro p + p {
+  margin-top: 12px;
+}
+
+.intro-actions {
+  margin-top: 18px;
+}
+
+.intro h2,
+.page-heading h2,
+.session-heading h2,
+.game-list h2,
+.results-summary h2 {
+  margin: 0 0 8px;
+  font-size: 1.35rem;
+}
+
+.intro p,
+.page-heading p,
+.session-heading p,
+.game-card p,
+.results-summary p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.list-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #c8c8bf;
+  margin-bottom: 4px;
+  padding-bottom: 8px;
+}
+
+.list-heading h2 {
+  margin: 0;
+}
+
+.list-heading span {
+  color: #666666;
+  font-size: 0.9rem;
+}
+
+.list-intro {
+  border-bottom: 1px solid #d2d2ca;
+  margin: 0;
+  padding: 10px 0 12px;
+  color: #444444;
+  line-height: 1.5;
+}
+
+.game-list-items {
+  display: grid;
+  gap: 0;
+}
+
+.game-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid #d2d2ca;
+  background: transparent;
+  padding: 14px 0;
+}
+
+.game-card:last-child {
+  border-bottom: 0;
+}
+
+.game-card-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.game-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid #888888;
+  background: #f7f7f2;
+  color: #222222;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.game-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.game-card p {
+  margin-top: 3px;
+  color: #444444;
+}
+
+.plain-link {
+  border: 0;
+  padding: 0;
+  color: #064c8f;
+  background: transparent;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.button {
+  min-height: 34px;
+  border: 1px solid #777777;
+  border-radius: 0;
+  padding: 4px 12px;
+  color: #111111;
+  background: #e8e8df;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.button:hover,
+.plain-link:hover,
+.site-title:hover {
+  color: #064c8f;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.secondary-button {
+  background: #f7f7f2;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.settings-form {
+  display: grid;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 5px;
+  font-weight: 700;
+}
+
+.number-input {
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid #888888;
+  border-radius: 0;
+  padding: 4px 8px;
+  color: #222222;
+  background: #ffffff;
+}
+
+.number-input:focus {
+  outline: 2px solid #8aa7c7;
+  outline-offset: 1px;
+}
+
+.fieldset {
+  border: 1px solid #b8b8b0;
+  margin: 0;
+  padding: 12px;
+}
+
+.fieldset legend {
+  font-weight: 700;
+}
+
+.operator-grid {
+  display: grid;
+  gap: 6px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.range-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.practice-page {
+  width: min(720px, calc(100% - 28px));
+}
+
+.session-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.practice-card {
+  padding: 16px;
+}
+
+.practice-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid #b8b8b0;
+  background: #ffffff;
+}
+
+.practice-stats div {
+  padding: 10px;
+}
+
+.practice-stats div + div {
+  border-left: 1px solid #b8b8b0;
+}
+
+.practice-stats span,
+.result-list dt {
+  display: block;
+  color: #555555;
+  font-size: 0.9rem;
+}
+
+.practice-stats strong,
+.result-list dd {
+  display: block;
+  margin: 2px 0 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.prompt-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.prompt {
+  display: grid;
+  min-height: 120px;
+  place-items: center;
+  border: 1px solid #999999;
+  background: #f7f7f2;
+  font-size: clamp(2.4rem, 8vw, 4.5rem);
+  font-weight: 700;
+}
+
+.answer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.feedback {
+  min-height: 22px;
+  margin: 0;
+  color: #555555;
+}
+
+.result-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.result-list div {
+  border: 1px solid #b8b8b0;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.result-list dd {
+  margin-left: 0;
+}
+
+@media (max-width: 640px) {
+  .masthead {
+    display: block;
+  }
+
+  .masthead p {
+    margin-top: 4px;
+  }
+
+  .top-nav {
+    overflow-x: auto;
+  }
+
+  .nav-link {
+    white-space: nowrap;
+  }
+
+  .session-heading,
+  .answer-row {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .practice-stats,
+  .range-grid,
+  .result-list,
+  .game-card {
+    grid-template-columns: 1fr;
+  }
+
+  .practice-stats div + div {
+    border-top: 1px solid #b8b8b0;
+    border-left: 0;
+  }
+}
