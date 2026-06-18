@@ -111,7 +111,7 @@ export default function App() {
 
   const isHome = view.name === "home";
   const isGames = view.name === "games";
-  const isLeaderboard = auth.user !== null && view.name === "leaderboard";
+  const isLeaderboard = view.name === "leaderboard";
   const isStatistics = view.name === "statistics";
 
   return (
@@ -140,25 +140,23 @@ export default function App() {
           >
             Games
           </button>
+          <button
+            className={isLeaderboard ? "nav-link active" : "nav-link"}
+            type="button"
+            aria-current={isLeaderboard ? "page" : undefined}
+            onClick={() => setView({ name: "leaderboard" })}
+          >
+            Leaderboard
+          </button>
           {auth.user ? (
-            <>
-              <button
-                className={isLeaderboard ? "nav-link active" : "nav-link"}
-                type="button"
-                aria-current={isLeaderboard ? "page" : undefined}
-                onClick={() => setView({ name: "leaderboard" })}
-              >
-                Leaderboard
-              </button>
-              <button
-                className={isStatistics ? "nav-link active" : "nav-link"}
-                type="button"
-                aria-current={isStatistics ? "page" : undefined}
-                onClick={() => setView({ name: "statistics" })}
-              >
-                Statistics
-              </button>
-            </>
+            <button
+              className={isStatistics ? "nav-link active" : "nav-link"}
+              type="button"
+              aria-current={isStatistics ? "page" : undefined}
+              onClick={() => setView({ name: "statistics" })}
+            >
+              Statistics
+            </button>
           ) : null}
           <span className="nav-spacer" />
           {auth.user ? (
@@ -205,7 +203,7 @@ export default function App() {
           }}
         />
       ) : null}
-      {view.name === "leaderboard" && auth.user ? <LeaderboardPage /> : null}
+      {view.name === "leaderboard" ? <LeaderboardPage /> : null}
       {view.name === "login" ? (
         <LoginPage onDone={goHome} onRegister={() => setView({ name: "register" })} />
       ) : null}
