@@ -5,11 +5,16 @@ import { BrowserStorageAdapter } from "../core/storage/BrowserStorageAdapter";
 import type { StorageAdapter } from "../core/storage/StorageAdapter";
 import { ArithmeticSessionPage } from "../features/arithmetic/ArithmeticSessionPage";
 import { ArithmeticSettingsPage } from "../features/arithmetic/ArithmeticSettingsPage";
+import { LoginPage } from "../features/auth/LoginPage";
+import { RegisterPage } from "../features/auth/RegisterPage";
+import { useAuth } from "../features/auth/AuthContext";
 import { GamesPage } from "../features/home/GamesPage";
 import { HomePage } from "../features/home/HomePage";
+import { LeaderboardPage } from "../features/leaderboard/LeaderboardPage";
 import { ResultsSummary } from "../features/results/ResultsSummary";
 import { SequenceSessionPage } from "../features/sequences/SequenceSessionPage";
 import { SequenceSettingsPage } from "../features/sequences/SequenceSettingsPage";
+import { StatisticsPage } from "../features/statistics/StatisticsPage";
 import {
   defaultArithmeticSettings,
   normalizeArithmeticSettings
@@ -21,8 +26,9 @@ import {
   normalizeSequenceSettings
 } from "../modules/sequences/sequenceSettings";
 import type { SequenceSettings } from "../modules/sequences/sequenceTypes";
+import { saveResult } from "../api/resultsApi";
 
-const arithmeticSettingsStorageKey = "math-practice:arithmetic-settings";
+const arithmeticSettingsStorageKey = "math-practice:arithmetic-settings:v2";
 const sequenceSettingsStorageKey = "math-practice:sequence-settings";
 
 type RestartTarget =
@@ -32,6 +38,10 @@ type RestartTarget =
 type AppView =
   | { name: "home" }
   | { name: "games" }
+  | { name: "leaderboard" }
+  | { name: "login" }
+  | { name: "register" }
+  | { name: "statistics" }
   | { name: "arithmetic-settings" }
   | { name: "arithmetic-session"; settings: ArithmeticSettings }
   | { name: "sequence-settings" }
@@ -39,6 +49,7 @@ type AppView =
   | { name: "results"; result: PracticeResult; restartTarget: RestartTarget };
 
 export default function App() {
+  const auth = useAuth();
   const storage = useMemo(() => new BrowserStorageAdapter(), []);
   const [arithmeticSettings, setArithmeticSettings] = useState<ArithmeticSettings>(() =>
     loadArithmeticSettings(storage)
@@ -47,6 +58,7 @@ export default function App() {
     loadSequenceSettings(storage)
   );
   const [view, setView] = useState<AppView>({ name: "home" });
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   const updateArithmeticSettings = (settings: ArithmeticSettings) => {
     setArithmeticSettings(settings);
@@ -81,9 +93,26 @@ export default function App() {
 
   const goHome = () => setView({ name: "home" });
   const goGames = () => setView({ name: "games" });
+  const completeSession = (result: PracticeResult, restartTarget: RestartTarget) => {
+    setSaveMessage(auth.user ? "Saving result..." : "Log in to save your progress.");
+    setView({ name: "results", result, restartTarget });
+
+    if (!auth.user) {
+      return;
+    }
+
+    void saveResult({
+      result,
+      settings: restartTarget.settings as unknown as Record<string, unknown>
+    })
+      .then(() => setSaveMessage("Result saved."))
+      .catch(() => setSaveMessage("Could not save this result."));
+  };
 
   const isHome = view.name === "home";
   const isGames = view.name === "games";
+  const isLeaderboard = auth.user !== null && view.name === "leaderboard";
+  const isStatistics = view.name === "statistics";
 
   return (
     <div className="app-shell">
@@ -111,6 +140,51 @@ export default function App() {
           >
             Games
           </button>
+          {auth.user ? (
+            <>
+              <button
+                className={isLeaderboard ? "nav-link active" : "nav-link"}
+                type="button"
+                aria-current={isLeaderboard ? "page" : undefined}
+                onClick={() => setView({ name: "leaderboard" })}
+              >
+                Leaderboard
+              </button>
+              <button
+                className={isStatistics ? "nav-link active" : "nav-link"}
+                type="button"
+                aria-current={isStatistics ? "page" : undefined}
+                onClick={() => setView({ name: "statistics" })}
+              >
+                Statistics
+              </button>
+            </>
+          ) : null}
+          <span className="nav-spacer" />
+          {auth.user ? (
+            <>
+              <span className="nav-user">{auth.user.displayName}</span>
+              <button
+                className="nav-link"
+                type="button"
+                onClick={() => {
+                  void auth.logout();
+                  setView({ name: "home" });
+                }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="nav-link" type="button" onClick={() => setView({ name: "login" })}>
+                Login
+              </button>
+              <button className="nav-link" type="button" onClick={() => setView({ name: "register" })}>
+                Register
+              </button>
+            </>
+          )}
         </nav>
       </header>
       {view.name === "home" ? (
@@ -131,6 +205,14 @@ export default function App() {
           }}
         />
       ) : null}
+      {view.name === "leaderboard" && auth.user ? <LeaderboardPage /> : null}
+      {view.name === "login" ? (
+        <LoginPage onDone={goHome} onRegister={() => setView({ name: "register" })} />
+      ) : null}
+      {view.name === "register" ? (
+        <RegisterPage onDone={goHome} onLogin={() => setView({ name: "login" })} />
+      ) : null}
+      {view.name === "statistics" ? <StatisticsPage /> : null}
       {view.name === "arithmetic-settings" ? (
         <ArithmeticSettingsPage
           settings={arithmeticSettings}
@@ -144,11 +226,7 @@ export default function App() {
           settings={view.settings}
           onBack={() => setView({ name: "arithmetic-settings" })}
           onFinish={(result) =>
-            setView({
-              name: "results",
-              result,
-              restartTarget: { moduleId: "arithmetic", settings: view.settings }
-            })
+            completeSession(result, { moduleId: "arithmetic", settings: view.settings })
           }
         />
       ) : null}
@@ -165,11 +243,7 @@ export default function App() {
           settings={view.settings}
           onBack={() => setView({ name: "sequence-settings" })}
           onFinish={(result) =>
-            setView({
-              name: "results",
-              result,
-              restartTarget: { moduleId: "sequences", settings: view.settings }
-            })
+            completeSession(result, { moduleId: "sequences", settings: view.settings })
           }
         />
       ) : null}
@@ -178,6 +252,7 @@ export default function App() {
           result={view.result}
           onRestart={() => restartSession(view.restartTarget)}
           onHome={() => setView({ name: "home" })}
+          saveMessage={saveMessage}
         />
       ) : null}
     </div>

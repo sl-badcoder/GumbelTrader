@@ -1,5 +1,6 @@
 import { randomIntInclusive, type RandomNumberGenerator } from "../../shared/utils/random";
 import type {
+  ArithmeticOperandRange,
   ArithmeticOperator,
   ArithmeticPrompt,
   ArithmeticSession
@@ -26,12 +27,14 @@ export function generateArithmeticPrompt(
     return generateDivisionPrompt(session, random);
   }
 
-  const firstNumber = randomIntInclusive(settings.minNumber, settings.maxNumber, random);
-  const secondNumber = randomIntInclusive(settings.minNumber, settings.maxNumber, random);
+  const range = settings.operandRanges[operator];
   const [left, right] =
     operator === "subtraction"
-      ? [Math.max(firstNumber, secondNumber), Math.min(firstNumber, secondNumber)]
-      : [firstNumber, secondNumber];
+      ? generateSubtractionOperands(range, random)
+      : [
+          randomIntInclusive(range.leftMin, range.leftMax, random),
+          randomIntInclusive(range.rightMin, range.rightMax, random)
+        ];
   const answer = calculateAnswer(left, right, operator);
 
   return {
@@ -47,9 +50,9 @@ function generateDivisionPrompt(
   session: ArithmeticSession,
   random?: RandomNumberGenerator
 ): ArithmeticPrompt {
-  const { minNumber, maxNumber } = session.settings;
-  const divisor = Math.max(1, randomIntInclusive(minNumber, maxNumber, random));
-  const quotient = randomIntInclusive(minNumber, maxNumber, random);
+  const range = session.settings.operandRanges.division;
+  const divisor = Math.max(1, randomIntInclusive(range.leftMin, range.leftMax, random));
+  const quotient = randomIntInclusive(range.rightMin, range.rightMax, random);
   const dividend = divisor * quotient;
 
   return {
@@ -59,6 +62,23 @@ function generateDivisionPrompt(
     text: `${dividend} ${operatorSymbols.division} ${divisor}`,
     answer: quotient
   };
+}
+
+function generateSubtractionOperands(
+  range: ArithmeticOperandRange,
+  random?: RandomNumberGenerator
+): [number, number] {
+  const leftMin = Math.max(range.leftMin, range.rightMin);
+
+  if (leftMin <= range.leftMax) {
+    const left = randomIntInclusive(leftMin, range.leftMax, random);
+    const right = randomIntInclusive(range.rightMin, Math.min(range.rightMax, left), random);
+    return [left, right];
+  }
+
+  const firstNumber = randomIntInclusive(range.leftMin, range.leftMax, random);
+  const secondNumber = randomIntInclusive(range.rightMin, range.rightMax, random);
+  return [Math.max(firstNumber, secondNumber), Math.min(firstNumber, secondNumber)];
 }
 
 function calculateAnswer(left: number, right: number, operator: ArithmeticOperator): number {

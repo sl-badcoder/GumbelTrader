@@ -16,7 +16,7 @@ games later.
 | --- | --- |
 | 🏠 Home page | Introduces the project with a clean, classic layout |
 | 🎮 Games page | Lists available practice modules from the module registry |
-| ➕ Arithmetic Practice | Timed drills for addition, subtraction, multiplication, and division |
+| ➕ Arithmetic Practice | Timed drills with per-operator operand ranges |
 | 🔢 Sequence Practice | Find the missing sixth number from five visible sequence terms |
 | ⚙️ Settings screen | Configure duration, operators, and number range before starting |
 | ⌨️ Auto-submit | Correct answers advance immediately when typed exactly |
@@ -33,10 +33,12 @@ games later.
 | Vite | Development server and build tooling |
 | TypeScript | Strict typing across app, module, and core logic |
 | Vitest | Unit tests |
+| Express | Small backend API |
+| PostgreSQL | Persistent users and game results |
+| bcryptjs | Password hashing |
 | Plain CSS | Simple classic styling without a heavy styling framework |
 
-No backend, database, Redux, Tailwind, Prisma, Supabase, Firebase, or similar
-infrastructure is included.
+Redux, Tailwind, Prisma, Supabase, and Firebase are intentionally not included.
 
 ---
 
@@ -52,6 +54,26 @@ Start the development server:
 
 ```bash
 npm run dev
+```
+
+Start the backend API in another terminal:
+
+```bash
+DATABASE_URL="postgres://postgres:postgres@localhost:5432/gumbel_math" \
+AUTH_SECRET="replace-this-with-at-least-32-characters" \
+npm run dev:server
+```
+
+Apply the initial PostgreSQL schema:
+
+```bash
+psql "$DATABASE_URL" -f server/src/db/migrations/schema.sql
+```
+
+The frontend calls `http://localhost:4000/api` by default. Override it with:
+
+```bash
+VITE_API_BASE_URL="http://localhost:4000/api" npm run dev
 ```
 
 Run tests:
@@ -165,7 +187,7 @@ This keeps problem generation and validation outside React components.
 
 | Module | Description | Status |
 | --- | --- | --- |
-| Arithmetic Practice | Timed arithmetic drills with configurable operators and number ranges | ✅ Available |
+| Arithmetic Practice | Timed arithmetic drills with configurable operators and per-operator ranges | ✅ Available |
 | Sequence Practice | Timed sequence drills with easy, medium, and hard pattern sets | ✅ Available |
 
 Planned module ideas:
@@ -251,6 +273,8 @@ keeping the implementation lightweight and easy to change.
 | Command | Description |
 | --- | --- |
 | `npm run dev` | Start the local Vite dev server |
+| `npm run dev:server` | Start the Express API server |
 | `npm test` | Run Vitest tests |
 | `npm run build` | Type-check and build for production |
+| `npm run build:server` | Type-check the backend |
 | `npm run preview` | Preview the production build locally |

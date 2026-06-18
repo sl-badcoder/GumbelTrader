@@ -68,6 +68,19 @@ input {
   margin: 0 auto;
 }
 
+.nav-spacer {
+  flex: 1;
+}
+
+.nav-user {
+  display: inline-flex;
+  align-items: center;
+  border-right: 1px solid #b4b4aa;
+  padding: 7px 12px;
+  color: #555555;
+  font-weight: 700;
+}
+
 .nav-link {
   border: 0;
   border-right: 1px solid #b4b4aa;
@@ -95,6 +108,10 @@ input {
 
 .narrow-page {
   width: min(640px, calc(100% - 28px));
+}
+
+.settings-page {
+  width: min(820px, calc(100% - 28px));
 }
 
 .intro,
@@ -253,24 +270,31 @@ input {
   gap: 10px;
 }
 
+.form-error {
+  margin: 0;
+  color: #8a1f11;
+  font-weight: 700;
+}
+
 .settings-form {
   display: grid;
-  gap: 16px;
+  gap: 12px;
   margin-top: 12px;
 }
 
 .field {
   display: grid;
-  gap: 5px;
+  gap: 4px;
   font-weight: 700;
+  font-size: 0.92rem;
 }
 
 .number-input {
   width: 100%;
-  min-height: 34px;
+  min-height: 30px;
   border: 1px solid #888888;
   border-radius: 0;
-  padding: 4px 8px;
+  padding: 3px 7px;
   color: #222222;
   background: #ffffff;
 }
@@ -283,7 +307,7 @@ input {
 .fieldset {
   border: 1px solid #b8b8b0;
   margin: 0;
-  padding: 12px;
+  padding: 10px;
 }
 
 .fieldset legend {
@@ -293,6 +317,23 @@ input {
 .operator-grid {
   display: grid;
   gap: 6px;
+}
+
+.compact-setting-row {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  align-items: end;
+  gap: 12px;
+}
+
+.compact-setting-row p {
+  margin: 0 0 4px;
+  color: #555555;
+  line-height: 1.4;
+}
+
+.duration-field {
+  max-width: 130px;
 }
 
 .difficulty-list {
@@ -321,6 +362,114 @@ input {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+.operator-range-list {
+  display: grid;
+}
+
+.operator-range {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 10px;
+  border-top: 1px solid #d2d2ca;
+  padding: 9px 0;
+}
+
+.operator-range.muted {
+  color: #666666;
+  background: #f6f6f0;
+}
+
+.operator-range:first-child {
+  border-top: 0;
+}
+
+.operator-range-header {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+}
+
+.operator-range-header code {
+  width: max-content;
+  border: 1px solid #d2d2ca;
+  padding: 2px 5px;
+  background: #ffffff;
+  font-family: "Courier New", monospace;
+  font-size: 0.88rem;
+}
+
+.operator-range-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #555555;
+  font-size: 0.92rem;
+}
+
+.operator-range-summary div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.operator-range-summary span {
+  border: 1px solid #d2d2ca;
+  padding: 3px 6px;
+  background: #ffffff;
+}
+
+.range-toggle-button {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: #222222;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.range-toggle-button:hover {
+  color: #064c8f;
+  border-color: #c8c8bf;
+  background: #ffffff;
+}
+
+.operator-range-body {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 160px) minmax(0, 160px) minmax(160px, 1fr);
+  align-items: start;
+  gap: 10px;
+}
+
+.operator-range-body p {
+  margin: 1.45rem 0 0;
+  color: #555555;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.range-control-group > span {
+  display: block;
+  margin-bottom: 4px;
+  color: #333333;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.mini-range-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
 }
 
 .practice-page {
@@ -414,6 +563,40 @@ input {
   margin-left: 0;
 }
 
+.statistics-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.statistic-card h3 {
+  margin: 0 0 10px;
+}
+
+.leaderboard-select select {
+  min-height: 34px;
+  border: 1px solid #888888;
+  border-radius: 0;
+  background: #ffffff;
+  padding: 4px 8px;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  border: 1px solid #c8c8bf;
+  padding: 8px;
+  text-align: left;
+}
+
+.leaderboard-table th {
+  background: #e4e4dc;
+}
+
 @media (max-width: 640px) {
   .masthead {
     display: block;
@@ -439,9 +622,20 @@ input {
 
   .practice-stats,
   .range-grid,
+  .operator-range,
+  .operator-range-body,
+  .compact-setting-row,
   .result-list,
   .game-card {
     grid-template-columns: 1fr;
+  }
+
+  .operator-range-body {
+    grid-column: auto;
+  }
+
+  .operator-range-body p {
+    margin-top: 0;
   }
 
   .practice-stats div + div {

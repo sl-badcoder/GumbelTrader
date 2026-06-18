@@ -5,9 +5,15 @@ type ResultsSummaryProps = {
   result: PracticeResult;
   onRestart: () => void;
   onHome: () => void;
+  saveMessage?: string | null;
 };
 
-export function ResultsSummary({ result, onRestart, onHome }: ResultsSummaryProps) {
+export function ResultsSummary({
+  result,
+  onRestart,
+  onHome,
+  saveMessage
+}: ResultsSummaryProps) {
   return (
     <main className="page narrow-page">
       <section className="panel results-summary">
@@ -16,6 +22,7 @@ export function ResultsSummary({ result, onRestart, onHome }: ResultsSummaryProp
           {result.correct} correct out of {result.attempts} attempts in{" "}
           {result.durationSeconds} seconds.
         </p>
+        {saveMessage ? <p>{saveMessage}</p> : null}
         <dl className="result-list">
           <div>
             <dt>Score</dt>

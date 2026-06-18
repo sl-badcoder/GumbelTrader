@@ -9,8 +9,10 @@ describe("arithmeticModule", () => {
     const settings: ArithmeticSettings = {
       durationSeconds: 30,
       enabledOperators: ["addition"],
-      minNumber: 2,
-      maxNumber: 5
+      operandRanges: {
+        ...arithmeticModule.defaultSettings.operandRanges,
+        addition: { leftMin: 2, leftMax: 5, rightMin: 2, rightMax: 5 }
+      }
     };
     const session = arithmeticModule.createSession(settings);
     const randomValues = [0, 0.25, 0.75];
@@ -29,8 +31,10 @@ describe("arithmeticModule", () => {
     const session = arithmeticModule.createSession({
       durationSeconds: 30,
       enabledOperators: ["division"],
-      minNumber: 2,
-      maxNumber: 4
+      operandRanges: {
+        ...arithmeticModule.defaultSettings.operandRanges,
+        division: { leftMin: 2, leftMax: 4, rightMin: 2, rightMax: 4 }
+      }
     });
     const randomValues = [0, 0.5, 0];
     const prompt = generateArithmeticPrompt(session, () => randomValues.shift() ?? 0);
@@ -44,16 +48,38 @@ describe("arithmeticModule", () => {
     const session = arithmeticModule.createSession({
       durationSeconds: 30,
       enabledOperators: ["subtraction"],
-      minNumber: 1,
-      maxNumber: 10
+      operandRanges: {
+        ...arithmeticModule.defaultSettings.operandRanges,
+        subtraction: { leftMin: 1, leftMax: 10, rightMin: 1, rightMax: 10 }
+      }
     });
-    const randomValues = [0, 0, 0.9];
+    const randomValues = [0, 0.9, 0];
     const prompt = generateArithmeticPrompt(session, () => randomValues.shift() ?? 0);
 
     expect(prompt.operator).toBe("subtraction");
     expect(prompt.left).toBeGreaterThanOrEqual(prompt.right);
     expect(prompt.answer).toBeGreaterThanOrEqual(0);
     expect(prompt.text).toBe("10 - 1");
+  });
+
+  it("uses operator-specific multiplication ranges", () => {
+    const session = arithmeticModule.createSession({
+      durationSeconds: 30,
+      enabledOperators: ["multiplication"],
+      operandRanges: {
+        ...arithmeticModule.defaultSettings.operandRanges,
+        multiplication: { leftMin: 2, leftMax: 12, rightMin: 50, rightMax: 100 }
+      }
+    });
+    const randomValues = [0, 0, 0.999];
+    const prompt = generateArithmeticPrompt(session, () => randomValues.shift() ?? 0);
+
+    expect(prompt).toMatchObject({
+      left: 2,
+      right: 100,
+      operator: "multiplication",
+      answer: 200
+    });
   });
 
   it("validates numeric answers", () => {
@@ -87,5 +113,18 @@ describe("arithmeticModule", () => {
     expect(nextSession.score).toBe(1);
     expect(nextSession.attempts).toBe(1);
     expect(nextSession.correct).toBe(1);
+  });
+
+  it("subtracts one point for wrong answers", () => {
+    const session = arithmeticModule.createSession(arithmeticModule.defaultSettings);
+    const prompt = arithmeticModule.generatePrompt(session);
+    const nextSession = arithmeticModule.applyResult(session, prompt, {
+      isCorrect: false,
+      expectedAnswer: String(prompt.answer)
+    });
+
+    expect(nextSession.score).toBe(-1);
+    expect(nextSession.attempts).toBe(1);
+    expect(nextSession.correct).toBe(0);
   });
 });

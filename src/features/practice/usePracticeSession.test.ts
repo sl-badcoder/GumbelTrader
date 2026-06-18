@@ -12,8 +12,10 @@ describe("usePracticeSession", () => {
     const settings: ArithmeticSettings = {
       durationSeconds: 30,
       enabledOperators: ["addition"],
-      minNumber: 10,
-      maxNumber: 10
+      operandRanges: {
+        ...arithmeticModule.defaultSettings.operandRanges,
+        addition: { leftMin: 10, leftMax: 10, rightMin: 10, rightMax: 10 }
+      }
     };
     const { result, unmount } = renderHook(() =>
       usePracticeSession({
