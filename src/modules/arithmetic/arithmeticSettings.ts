@@ -5,7 +5,7 @@ import type {
 } from "./arithmeticTypes";
 
 export const defaultArithmeticSettings: ArithmeticSettings = {
-  durationSeconds: 60,
+  durationSeconds: 120,
   enabledOperators: ["addition", "subtraction", "multiplication"],
   operandRanges: {
     addition: { leftMin: 2, leftMax: 100, rightMin: 2, rightMax: 100 },

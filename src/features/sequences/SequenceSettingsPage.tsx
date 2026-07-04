@@ -7,9 +7,9 @@ import type {
 } from "../../modules/sequences/sequenceTypes";
 
 const difficulties: Array<{ id: SequenceDifficulty; label: string; description: string }> = [
-  { id: "easy", label: "Easy", description: "Constant steps, simple multiplication, squares." },
-  { id: "medium", label: "Medium", description: "Changing steps, alternation, Fibonacci-like rules." },
-  { id: "hard", label: "Hard", description: "Quadratic rules, prime increments, interleaved sequences." }
+  { id: "easy", label: "Easy", description: "Arithmetic, geometric, Fibonacci, and prime patterns." },
+  { id: "medium", label: "Medium", description: "Larger ranges, sign flips, distractions, and Tribonacci." },
+  { id: "hard", label: "Hard", description: "Shifted, Pascal, custom-start, and interwoven patterns." }
 ];
 
 type SequenceSettingsPageProps = {

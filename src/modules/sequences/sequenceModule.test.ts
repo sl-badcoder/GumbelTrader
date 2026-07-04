@@ -13,8 +13,8 @@ describe("sequenceModule", () => {
     const prompt = generateSequencePrompt(session, () => randomValues.shift() ?? 0);
 
     expect(prompt.values).toHaveLength(5);
-    expect(prompt.answer).toBe(11);
-    expect(prompt.text).toBe("1, 3, 5, 7, 9, ?");
+    expect(prompt.answer).toBe(-130);
+    expect(prompt.text).toBe("-30, -50, -70, -90, -110, ?");
   });
 
   it("uses patterns from the selected difficulty", () => {
