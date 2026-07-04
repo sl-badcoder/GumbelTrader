@@ -47,11 +47,11 @@ export function LeaderboardPage() {
           <tbody>
             {entries.map((entry) => (
               <tr key={`${entry.userId}-${entry.rank}`}>
-                <td>{entry.rank}</td>
-                <td>{entry.displayName}</td>
-                <td>{entry.bestScore}</td>
-                <td>{entry.accuracy}%</td>
-                <td>{new Date(entry.achievedAt).toLocaleDateString()}</td>
+                <td data-label="Rank">{entry.rank}</td>
+                <td data-label="Name">{entry.displayName}</td>
+                <td data-label="Best score">{entry.bestScore}</td>
+                <td data-label="Accuracy">{entry.accuracy}%</td>
+                <td data-label="Date">{new Date(entry.achievedAt).toLocaleDateString()}</td>
               </tr>
             ))}
           </tbody>
