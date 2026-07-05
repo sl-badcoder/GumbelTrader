@@ -132,6 +132,10 @@ input {
 }
 
 .intro-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
   margin-top: 18px;
 }
 
@@ -249,7 +253,28 @@ input {
   font-weight: 700;
 }
 
+.discord-link {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #777777;
+  padding: 4px 12px;
+  color: #111111;
+  background: #e8e8df;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.discord-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  fill: currentColor;
+}
+
 .button:hover,
+.discord-link:hover,
 .plain-link:hover,
 .site-title:hover {
   color: #064c8f;
