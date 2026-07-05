@@ -6,21 +6,30 @@ import type { ValidationResult } from "../../core/engine/ValidationResult";
 type UsePracticeSessionOptions<TSettings, TSession extends PracticeSession, TPrompt> = {
   module: ProblemModule<TSettings, TSession, TPrompt>;
   settings: TSettings;
-  durationSeconds: number;
+  durationSeconds: number | null;
+  questionLimit?: number | null;
+  autoAdvanceOnCorrectAnswer?: boolean;
+  isActive?: boolean;
 };
 
 export function usePracticeSession<TSettings, TSession extends PracticeSession, TPrompt>({
   module,
   settings,
-  durationSeconds
+  durationSeconds,
+  questionLimit = null,
+  autoAdvanceOnCorrectAnswer = true,
+  isActive = true
 }: UsePracticeSessionOptions<TSettings, TSession, TPrompt>) {
   const [session, setSession] = useState<TSession>(() => module.createSession(settings));
   const [prompt, setPrompt] = useState<TPrompt>(() => module.generatePrompt(session));
   const [answer, setAnswer] = useState("");
   const [lastResult, setLastResult] = useState<ValidationResult | null>(null);
-  const [remainingSeconds, setRemainingSeconds] = useState(durationSeconds);
+  const [lastPrompt, setLastPrompt] = useState<TPrompt | null>(null);
+  const [remainingSeconds, setRemainingSeconds] = useState<number | null>(durationSeconds);
 
-  const isEnded = remainingSeconds <= 0;
+  const isTimeEnded = remainingSeconds !== null && remainingSeconds <= 0;
+  const isQuestionLimitEnded = questionLimit !== null && session.attempts >= questionLimit;
+  const isEnded = isTimeEnded || isQuestionLimitEnded;
 
   const startSession = useCallback(() => {
     const nextSession = module.createSession(settings);
@@ -28,6 +37,7 @@ export function usePracticeSession<TSettings, TSession extends PracticeSession, 
     setPrompt(module.generatePrompt(nextSession));
     setAnswer("");
     setLastResult(null);
+    setLastPrompt(null);
     setRemainingSeconds(durationSeconds);
   }, [durationSeconds, module, settings]);
 
@@ -36,16 +46,16 @@ export function usePracticeSession<TSettings, TSession extends PracticeSession, 
   }, [startSession]);
 
   useEffect(() => {
-    if (isEnded) {
+    if (!isActive || isEnded || remainingSeconds === null) {
       return undefined;
     }
 
     const timerId = window.setInterval(() => {
-      setRemainingSeconds((current) => Math.max(0, current - 1));
+      setRemainingSeconds((current) => (current === null ? null : Math.max(0, current - 1)));
     }, 1000);
 
     return () => window.clearInterval(timerId);
-  }, [isEnded]);
+  }, [isActive, isEnded, remainingSeconds]);
 
   const applyAnswerResult = useCallback(
     (result: ValidationResult) => {
@@ -55,34 +65,39 @@ export function usePracticeSession<TSettings, TSession extends PracticeSession, 
         return nextSession;
       });
       setLastResult(result);
+      setLastPrompt(prompt);
       setAnswer("");
     },
     [module, prompt]
   );
 
   const submitAnswer = useCallback(() => {
-    if (isEnded) {
+    if (!isActive || isEnded) {
       return;
     }
 
     const result = module.validateAnswer(prompt, answer);
     applyAnswerResult(result);
-  }, [answer, applyAnswerResult, isEnded, module, prompt]);
+  }, [answer, applyAnswerResult, isActive, isEnded, module, prompt]);
 
   const changeAnswer = useCallback(
     (nextAnswer: string) => {
-      if (isEnded) {
+      if (!isActive || isEnded) {
         return;
       }
 
       setAnswer(nextAnswer);
 
       const result = module.validateAnswer(prompt, nextAnswer);
-      if (result.isCorrect && nextAnswer.trim() === result.expectedAnswer) {
+      if (
+        autoAdvanceOnCorrectAnswer &&
+        result.isCorrect &&
+        nextAnswer.trim() === result.expectedAnswer
+      ) {
         applyAnswerResult(result);
       }
     },
-    [applyAnswerResult, isEnded, module, prompt]
+    [applyAnswerResult, autoAdvanceOnCorrectAnswer, isActive, isEnded, module, prompt]
   );
 
   const accuracy = useMemo(() => {
@@ -99,6 +114,7 @@ export function usePracticeSession<TSettings, TSession extends PracticeSession, 
     answer,
     setAnswer: changeAnswer,
     lastResult,
+    lastPrompt,
     remainingSeconds,
     isEnded,
     accuracy,

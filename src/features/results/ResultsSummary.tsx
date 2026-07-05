@@ -14,6 +14,8 @@ export function ResultsSummary({
   onHome,
   saveMessage
 }: ResultsSummaryProps) {
+  const incorrect = result.incorrect ?? Math.max(0, result.attempts - result.correct);
+
   return (
     <main className="page narrow-page">
       <section className="panel results-summary">
@@ -32,6 +34,25 @@ export function ResultsSummary({
             <dt>Accuracy</dt>
             <dd>{result.accuracy}%</dd>
           </div>
+          <div>
+            <dt>Attempted</dt>
+            <dd>
+              {result.attempts}
+              {result.totalQuestions ? ` / ${result.totalQuestions}` : ""}
+            </dd>
+          </div>
+          <div>
+            <dt>Correct / Incorrect</dt>
+            <dd>
+              {result.correct} / {incorrect}
+            </dd>
+          </div>
+          {result.averageSecondsPerQuestion !== undefined ? (
+            <div>
+              <dt>Average Time</dt>
+              <dd>{result.averageSecondsPerQuestion.toFixed(1)}s</dd>
+            </div>
+          ) : null}
         </dl>
         <div className="button-row">
           <Button onClick={onRestart}>Try again</Button>

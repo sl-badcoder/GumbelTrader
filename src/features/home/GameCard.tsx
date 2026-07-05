@@ -7,6 +7,8 @@ type GameCardProps = {
 };
 
 export function GameCard({ module, onSelect }: GameCardProps) {
+  const buttonLabel = module.modeGroup === "test" ? "Start Test" : "Start Game";
+
   return (
     <article className="game-card">
       <div className="game-card-main">
@@ -18,7 +20,7 @@ export function GameCard({ module, onSelect }: GameCardProps) {
           <p>{module.shortDescription}</p>
         </div>
       </div>
-      <Button onClick={() => onSelect(module.id)}>Start Game</Button>
+      <Button onClick={() => onSelect(module.id)}>{buttonLabel}</Button>
     </article>
   );
 }

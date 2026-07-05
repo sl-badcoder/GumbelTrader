@@ -8,9 +8,13 @@ type PracticeSessionViewProps<TPrompt extends { text: string }> = {
   answer: string;
   score: number;
   attempts: number;
-  remainingSeconds: number;
+  correct?: number;
+  incorrect?: number;
+  totalQuestions?: number;
+  remainingSeconds: number | null;
   isEnded: boolean;
   feedback: string | null;
+  promptClassName?: string;
   onAnswerChange: (answer: string) => void;
   onSubmit: () => void;
 };
@@ -20,9 +24,13 @@ export function PracticeSessionView<TPrompt extends { text: string }>({
   answer,
   score,
   attempts,
+  correct,
+  incorrect,
+  totalQuestions,
   remainingSeconds,
   isEnded,
   feedback,
+  promptClassName = "",
   onAnswerChange,
   onSubmit
 }: PracticeSessionViewProps<TPrompt>) {
@@ -47,17 +55,35 @@ export function PracticeSessionView<TPrompt extends { text: string }>({
           <strong>{score}</strong>
         </div>
         <div>
-          <span>Attempts</span>
+          <span>{totalQuestions ? "Answered" : "Attempts"}</span>
           <strong>{attempts}</strong>
         </div>
+        {correct !== undefined ? (
+          <div>
+            <span>Correct</span>
+            <strong>{correct}</strong>
+          </div>
+        ) : null}
+        {incorrect !== undefined ? (
+          <div>
+            <span>Incorrect</span>
+            <strong>{incorrect}</strong>
+          </div>
+        ) : null}
+        {totalQuestions ? (
+          <div>
+            <span>Remaining</span>
+            <strong>{Math.max(0, totalQuestions - attempts)}</strong>
+          </div>
+        ) : null}
         <div>
           <span>Time</span>
-          <strong>{remainingSeconds}s</strong>
+          <strong>{remainingSeconds === null ? "Off" : `${remainingSeconds}s`}</strong>
         </div>
       </div>
 
       <form className="prompt-form" onSubmit={submit}>
-        <div className="prompt" aria-live="polite">
+        <div className={`prompt ${promptClassName}`.trim()} aria-live="polite">
           {prompt.text}
         </div>
         <div className="answer-row">

@@ -8,9 +8,12 @@ import { ArithmeticSettingsPage } from "../features/arithmetic/ArithmeticSetting
 import { LoginPage } from "../features/auth/LoginPage";
 import { RegisterPage } from "../features/auth/RegisterPage";
 import { useAuth } from "../features/auth/AuthContext";
+import { EightyInEightSessionPage } from "../features/eightyInEight/EightyInEightSessionPage";
 import { GamesPage } from "../features/home/GamesPage";
 import { HomePage } from "../features/home/HomePage";
 import { LeaderboardPage } from "../features/leaderboard/LeaderboardPage";
+import { QuantSessionPage } from "../features/quant/QuantSessionPage";
+import { QuantSettingsPage } from "../features/quant/QuantSettingsPage";
 import { ResultsSummary } from "../features/results/ResultsSummary";
 import { SequenceSessionPage } from "../features/sequences/SequenceSessionPage";
 import { SequenceSettingsPage } from "../features/sequences/SequenceSettingsPage";
@@ -22,6 +25,12 @@ import {
 import type { ArithmeticSettings } from "../modules/arithmetic/arithmeticTypes";
 import { availableProblemModules, problemModules } from "../modules";
 import {
+  defaultCombinatoricsSettings,
+  defaultProbabilitySettings,
+  normalizeQuantSettings
+} from "../modules/quant/quantSettings";
+import type { QuantSettings } from "../modules/quant/quantTypes";
+import {
   defaultSequenceSettings,
   normalizeSequenceSettings
 } from "../modules/sequences/sequenceSettings";
@@ -30,10 +39,15 @@ import { saveResult } from "../api/resultsApi";
 
 const arithmeticSettingsStorageKey = "math-practice:arithmetic-settings:v2";
 const sequenceSettingsStorageKey = "math-practice:sequence-settings";
+const probabilitySettingsStorageKey = "math-practice:probability-settings";
+const combinatoricsSettingsStorageKey = "math-practice:combinatorics-settings";
 
 type RestartTarget =
   | { moduleId: "arithmetic"; settings: ArithmeticSettings }
-  | { moduleId: "sequences"; settings: SequenceSettings };
+  | { moduleId: "sequences"; settings: SequenceSettings }
+  | { moduleId: "eightyInEight" }
+  | { moduleId: "probability"; settings: QuantSettings }
+  | { moduleId: "combinatorics"; settings: QuantSettings };
 
 type AppView =
   | { name: "home" }
@@ -46,6 +60,11 @@ type AppView =
   | { name: "arithmetic-session"; settings: ArithmeticSettings }
   | { name: "sequence-settings" }
   | { name: "sequence-session"; settings: SequenceSettings }
+  | { name: "eighty-in-eight-session" }
+  | { name: "probability-settings" }
+  | { name: "probability-session"; settings: QuantSettings }
+  | { name: "combinatorics-settings" }
+  | { name: "combinatorics-session"; settings: QuantSettings }
   | { name: "results"; result: PracticeResult; restartTarget: RestartTarget };
 
 export default function App() {
@@ -56,6 +75,12 @@ export default function App() {
   );
   const [sequenceSettings, setSequenceSettings] = useState<SequenceSettings>(() =>
     loadSequenceSettings(storage)
+  );
+  const [probabilitySettings, setProbabilitySettings] = useState<QuantSettings>(() =>
+    loadQuantSettings(storage, probabilitySettingsStorageKey, defaultProbabilitySettings)
+  );
+  const [combinatoricsSettings, setCombinatoricsSettings] = useState<QuantSettings>(() =>
+    loadQuantSettings(storage, combinatoricsSettingsStorageKey, defaultCombinatoricsSettings)
   );
   const [view, setView] = useState<AppView>({ name: "home" });
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
@@ -70,6 +95,16 @@ export default function App() {
     storage.setItem(sequenceSettingsStorageKey, JSON.stringify(settings));
   };
 
+  const updateProbabilitySettings = (settings: QuantSettings) => {
+    setProbabilitySettings(settings);
+    storage.setItem(probabilitySettingsStorageKey, JSON.stringify(settings));
+  };
+
+  const updateCombinatoricsSettings = (settings: QuantSettings) => {
+    setCombinatoricsSettings(settings);
+    storage.setItem(combinatoricsSettingsStorageKey, JSON.stringify(settings));
+  };
+
   const startArithmeticSession = (settings: ArithmeticSettings) => {
     const normalizedSettings = normalizeArithmeticSettings(settings);
     updateArithmeticSettings(normalizedSettings);
@@ -82,13 +117,40 @@ export default function App() {
     setView({ name: "sequence-session", settings: normalizedSettings });
   };
 
+  const startQuantSession = (
+    moduleId: "probability" | "combinatorics",
+    settings: QuantSettings
+  ) => {
+    const defaults = problemModules[moduleId].defaultSettings;
+    const normalizedSettings = normalizeQuantSettings(settings, defaults);
+
+    if (moduleId === "probability") {
+      updateProbabilitySettings(normalizedSettings);
+      setView({ name: "probability-session", settings: normalizedSettings });
+      return;
+    }
+
+    updateCombinatoricsSettings(normalizedSettings);
+    setView({ name: "combinatorics-session", settings: normalizedSettings });
+  };
+
   const restartSession = (target: RestartTarget) => {
     if (target.moduleId === "arithmetic") {
       startArithmeticSession(target.settings);
       return;
     }
 
-    startSequenceSession(target.settings);
+    if (target.moduleId === "sequences") {
+      startSequenceSession(target.settings);
+      return;
+    }
+
+    if (target.moduleId === "eightyInEight") {
+      setView({ name: "eighty-in-eight-session" });
+      return;
+    }
+
+    startQuantSession(target.moduleId, target.settings);
   };
 
   const goHome = () => setView({ name: "home" });
@@ -103,7 +165,10 @@ export default function App() {
 
     void saveResult({
       result,
-      settings: restartTarget.settings as unknown as Record<string, unknown>
+      settings:
+        "settings" in restartTarget
+          ? (restartTarget.settings as unknown as Record<string, unknown>)
+          : {}
     })
       .then(() => setSaveMessage("Result saved."))
       .catch(() => setSaveMessage("Could not save this result."));
@@ -199,6 +264,21 @@ export default function App() {
 
             if (moduleId === problemModules.sequences.id) {
               setView({ name: "sequence-settings" });
+              return;
+            }
+
+            if (moduleId === problemModules.eightyInEight.id) {
+              setView({ name: "eighty-in-eight-session" });
+              return;
+            }
+
+            if (moduleId === problemModules.probability.id) {
+              setView({ name: "probability-settings" });
+              return;
+            }
+
+            if (moduleId === problemModules.combinatorics.id) {
+              setView({ name: "combinatorics-settings" });
             }
           }}
         />
@@ -245,6 +325,52 @@ export default function App() {
           }
         />
       ) : null}
+      {view.name === "eighty-in-eight-session" ? (
+        <EightyInEightSessionPage
+          onBack={goGames}
+          onFinish={(result) =>
+            completeSession(result, { moduleId: "eightyInEight" })
+          }
+        />
+      ) : null}
+      {view.name === "probability-settings" ? (
+        <QuantSettingsPage
+          module={problemModules.probability}
+          settings={probabilitySettings}
+          onChange={updateProbabilitySettings}
+          onStart={(settings) => startQuantSession("probability", settings)}
+          onBack={goGames}
+        />
+      ) : null}
+      {view.name === "probability-session" ? (
+        <QuantSessionPage
+          module={problemModules.probability}
+          settings={view.settings}
+          onBack={() => setView({ name: "probability-settings" })}
+          onFinish={(result) =>
+            completeSession(result, { moduleId: "probability", settings: view.settings })
+          }
+        />
+      ) : null}
+      {view.name === "combinatorics-settings" ? (
+        <QuantSettingsPage
+          module={problemModules.combinatorics}
+          settings={combinatoricsSettings}
+          onChange={updateCombinatoricsSettings}
+          onStart={(settings) => startQuantSession("combinatorics", settings)}
+          onBack={goGames}
+        />
+      ) : null}
+      {view.name === "combinatorics-session" ? (
+        <QuantSessionPage
+          module={problemModules.combinatorics}
+          settings={view.settings}
+          onBack={() => setView({ name: "combinatorics-settings" })}
+          onFinish={(result) =>
+            completeSession(result, { moduleId: "combinatorics", settings: view.settings })
+          }
+        />
+      ) : null}
       {view.name === "results" ? (
         <ResultsSummary
           result={view.result}
@@ -284,5 +410,24 @@ function loadSequenceSettings(storage: StorageAdapter): SequenceSettings {
   } catch {
     storage.removeItem(sequenceSettingsStorageKey);
     return defaultSequenceSettings;
+  }
+}
+
+function loadQuantSettings(
+  storage: StorageAdapter,
+  storageKey: string,
+  defaults: QuantSettings
+): QuantSettings {
+  const storedSettings = storage.getItem(storageKey);
+
+  if (!storedSettings) {
+    return defaults;
+  }
+
+  try {
+    return normalizeQuantSettings(JSON.parse(storedSettings) as Partial<QuantSettings>, defaults);
+  } catch {
+    storage.removeItem(storageKey);
+    return defaults;
   }
 }

@@ -19,6 +19,7 @@ export const arithmeticModule: ProblemModule<
   title: "Arithmetic Practice",
   shortDescription: "Quick arithmetic drills with configurable operators and number ranges.",
   iconLabel: "+-x/",
+  modeGroup: "practice",
   defaultSettings: defaultArithmeticSettings,
   createSession: (settings) => ({
     settings: normalizeArithmeticSettings(settings),

@@ -5,6 +5,7 @@ export type ProblemModuleMetadata = {
   title: string;
   shortDescription: string;
   iconLabel: string;
+  modeGroup: "practice" | "test";
 };
 
 export type ProblemModule<TSettings, TSession, TPrompt> = ProblemModuleMetadata & {

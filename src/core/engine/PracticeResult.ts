@@ -6,4 +6,8 @@ export type PracticeResult = {
   correct: number;
   accuracy: number;
   durationSeconds: number;
+  incorrect?: number;
+  totalQuestions?: number;
+  averageSecondsPerQuestion?: number;
+  canReviewMissed?: boolean;
 };

@@ -19,6 +19,7 @@ export const sequenceModule: ProblemModule<
   title: "Sequence Practice",
   shortDescription: "Find the next number in arithmetic, geometric, and mixed sequences.",
   iconLabel: "1,2,?",
+  modeGroup: "practice",
   defaultSettings: defaultSequenceSettings,
   createSession: (settings) => ({
     settings: normalizeSequenceSettings(settings),
