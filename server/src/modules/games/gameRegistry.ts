@@ -2,7 +2,10 @@ import type { GameDefinition } from "./game.types.js";
 
 export const gameRegistry: Record<string, GameDefinition> = {
   arithmetic: { id: "arithmetic", title: "Arithmetic Practice" },
-  sequences: { id: "sequences", title: "Sequence Practice" }
+  sequences: { id: "sequences", title: "Sequence Practice" },
+  "eighty-in-eight": { id: "eighty-in-eight", title: "80 in 8 Mode" },
+  probability: { id: "probability", title: "Probability Questions" },
+  combinatorics: { id: "combinatorics", title: "Combinatorics Questions" }
 };
 
 export function isKnownGame(gameId: string): boolean {
