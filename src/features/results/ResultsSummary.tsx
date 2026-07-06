@@ -55,7 +55,9 @@ export function ResultsSummary({
           ) : null}
         </dl>
         <div className="button-row">
-          <Button onClick={onRestart}>Try again</Button>
+          <Button className="quiz-action-button is-primary" onClick={onRestart}>
+            Try again
+          </Button>
           <Button className="secondary-button" onClick={onHome}>
             Back to games
           </Button>

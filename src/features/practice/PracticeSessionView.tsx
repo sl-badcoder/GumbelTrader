@@ -14,6 +14,7 @@ type PracticeSessionViewProps<TPrompt extends { text: string; choices?: string[]
   remainingSeconds: number | null;
   isEnded: boolean;
   feedback: string | null;
+  feedbackTone?: "success" | "error" | null;
   promptClassName?: string;
   onAnswerChange: (answer: string) => void;
   onSubmit: () => void;
@@ -30,12 +31,14 @@ export function PracticeSessionView<TPrompt extends { text: string; choices?: st
   remainingSeconds,
   isEnded,
   feedback,
+  feedbackTone = null,
   promptClassName = "",
   onAnswerChange,
   onSubmit
 }: PracticeSessionViewProps<TPrompt>) {
   const inputRef = useRef<HTMLInputElement>(null);
   const hasChoices = prompt.choices !== undefined && prompt.choices.length > 0;
+  const isLongPrompt = prompt.text.length > 34;
 
   useEffect(() => {
     if (!isEnded && !hasChoices) {
@@ -58,49 +61,58 @@ export function PracticeSessionView<TPrompt extends { text: string; choices?: st
   };
 
   return (
-    <Card className="practice-card">
-      <div className="practice-stats">
-        <div>
+    <Card className="practice-card quiz-panel">
+      <div className="practice-stats quiz-status-grid" aria-label="Practice status">
+        <div className="quiz-status-card">
           <span>Score</span>
           <strong>{score}</strong>
         </div>
-        <div>
+        <div className="quiz-status-card">
           <span>{totalQuestions ? "Answered" : "Attempts"}</span>
           <strong>{attempts}</strong>
         </div>
         {correct !== undefined ? (
-          <div>
+          <div className="quiz-status-card">
             <span>Correct</span>
             <strong>{correct}</strong>
           </div>
         ) : null}
         {incorrect !== undefined ? (
-          <div>
+          <div className="quiz-status-card">
             <span>Incorrect</span>
             <strong>{incorrect}</strong>
           </div>
         ) : null}
         {totalQuestions ? (
-          <div>
+          <div className="quiz-status-card">
             <span>Remaining</span>
             <strong>{Math.max(0, totalQuestions - attempts)}</strong>
           </div>
         ) : null}
-        <div>
+        <div className="quiz-status-card">
           <span>Time</span>
           <strong>{remainingSeconds === null ? "Off" : `${remainingSeconds}s`}</strong>
         </div>
       </div>
 
       <form className="prompt-form" onKeyDown={submitChoiceWithEnter} onSubmit={submit}>
-        <div className={`prompt ${promptClassName}`.trim()} aria-live="polite">
+        <div
+          className={`prompt quiz-question-card quiz-question ${
+            isLongPrompt ? "is-long" : ""
+          } ${promptClassName}`.trim()}
+          aria-live="polite"
+        >
           {prompt.text}
         </div>
         {hasChoices ? (
-          <div className="choice-grid" role="radiogroup" aria-label="Answer choices">
+          <div className="choice-grid quiz-answer-grid" role="radiogroup" aria-label="Answer choices">
             {prompt.choices?.map((choice) => (
               <button
-                className={answer === choice ? "choice-button selected" : "choice-button"}
+                className={
+                  answer === choice
+                    ? "choice-button quiz-answer-button selected is-selected"
+                    : "choice-button quiz-answer-button"
+                }
                 disabled={isEnded}
                 key={choice}
                 type="button"
@@ -121,19 +133,36 @@ export function PracticeSessionView<TPrompt extends { text: string; choices?: st
               disabled={isEnded}
               onChange={(event) => onAnswerChange(event.target.value)}
             />
-            <Button disabled={isEnded} type="submit">
+            <Button className="quiz-action-button is-primary" disabled={isEnded} type="submit">
               Submit
             </Button>
           </div>
         )}
         {hasChoices ? (
           <div className="answer-row choice-submit-row">
-            <Button disabled={isEnded || answer.length === 0} type="submit">
+            <Button
+              className="quiz-action-button is-primary"
+              disabled={isEnded || answer.length === 0}
+              type="submit"
+            >
               Submit
             </Button>
           </div>
         ) : null}
-        {feedback ? <p className="feedback">{feedback}</p> : null}
+        {feedback ? (
+          <p
+            className={`feedback quiz-feedback ${
+              feedbackTone === "success"
+                ? "is-success"
+                : feedbackTone === "error"
+                  ? "is-error"
+                  : ""
+            }`.trim()}
+            aria-live="polite"
+          >
+            {feedback}
+          </p>
+        ) : null}
       </form>
     </Card>
   );

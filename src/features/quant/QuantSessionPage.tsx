@@ -107,6 +107,9 @@ export function QuantSessionPage({
         remainingSeconds={practice.remainingSeconds}
         isEnded={practice.isEnded}
         feedback={feedback}
+        feedbackTone={
+          practice.lastResult ? (practice.lastResult.isCorrect ? "success" : "error") : null
+        }
         promptClassName="quant-prompt"
         onAnswerChange={practice.setAnswer}
         onSubmit={practice.submitAnswer}

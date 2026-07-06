@@ -182,6 +182,7 @@ function LoadedIntuitiveMathSessionPage({
           <span>Ready</span>
           <strong>{settings.questionLimit} in 8</strong>
           <Button
+            className="quiz-action-button is-primary"
             onClick={() => {
               setCountdownValue(countdownSeconds);
               setStartState("countdown");
@@ -211,6 +212,9 @@ function LoadedIntuitiveMathSessionPage({
           remainingSeconds={practice.remainingSeconds}
           isEnded={practice.isEnded}
           feedback={feedback}
+          feedbackTone={
+            practice.lastResult ? (practice.lastResult.isCorrect ? "success" : "error") : null
+          }
           onAnswerChange={practice.setAnswer}
           onSubmit={practice.submitAnswer}
         />

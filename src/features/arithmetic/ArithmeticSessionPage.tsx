@@ -69,6 +69,9 @@ export function ArithmeticSessionPage({
         remainingSeconds={practice.remainingSeconds}
         isEnded={practice.isEnded}
         feedback={practice.lastResult?.message ?? null}
+        feedbackTone={
+          practice.lastResult ? (practice.lastResult.isCorrect ? "success" : "error") : null
+        }
         onAnswerChange={practice.setAnswer}
         onSubmit={practice.submitAnswer}
       />
