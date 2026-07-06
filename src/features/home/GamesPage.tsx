@@ -1,16 +1,24 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { ProblemModuleMetadata } from "../../core/engine/ProblemModule";
 import { groupProblemModules } from "../../modules/gameGroups";
 import { GameCard } from "./GameCard";
 
 type GamesPageProps = {
   modules: ProblemModuleMetadata[];
+  selectedGroupId: string | null;
+  onSelectGroup: (groupId: string) => void;
+  onBackToGroups: () => void;
   onSelectModule: (moduleId: string) => void;
 };
 
-export function GamesPage({ modules, onSelectModule }: GamesPageProps) {
+export function GamesPage({
+  modules,
+  selectedGroupId,
+  onSelectGroup,
+  onBackToGroups,
+  onSelectModule
+}: GamesPageProps) {
   const groups = useMemo(() => groupProblemModules(modules), [modules]);
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const selectedGroup = groups.find((group) => group.id === selectedGroupId);
 
   return (
@@ -23,7 +31,7 @@ export function GamesPage({ modules, onSelectModule }: GamesPageProps) {
         {selectedGroup ? (
           <GameGroupDetail
             group={selectedGroup}
-            onBack={() => setSelectedGroupId(null)}
+            onBack={onBackToGroups}
             onSelectModule={onSelectModule}
           />
         ) : (
@@ -37,7 +45,7 @@ export function GamesPage({ modules, onSelectModule }: GamesPageProps) {
                   className="game-group-card"
                   key={group.id}
                   type="button"
-                  onClick={() => setSelectedGroupId(group.id)}
+                  onClick={() => onSelectGroup(group.id)}
                 >
                   <span className="game-icon" aria-hidden="true">
                     {group.iconLabel}

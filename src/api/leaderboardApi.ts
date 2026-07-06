@@ -5,8 +5,6 @@ export type LeaderboardEntry = {
   userId: string;
   displayName: string;
   bestScore: number;
-  accuracy: number;
-  achievedAt: string;
 };
 
 export function getLeaderboard(

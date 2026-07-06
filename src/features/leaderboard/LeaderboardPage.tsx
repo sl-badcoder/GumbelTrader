@@ -40,8 +40,6 @@ export function LeaderboardPage() {
               <th>Rank</th>
               <th>Name</th>
               <th>Best score</th>
-              <th>Accuracy</th>
-              <th>Date</th>
             </tr>
           </thead>
           <tbody>
@@ -50,8 +48,6 @@ export function LeaderboardPage() {
                 <td data-label="Rank">{entry.rank}</td>
                 <td data-label="Name">{entry.displayName}</td>
                 <td data-label="Best score">{entry.bestScore}</td>
-                <td data-label="Accuracy">{entry.accuracy}%</td>
-                <td data-label="Date">{new Date(entry.achievedAt).toLocaleDateString()}</td>
               </tr>
             ))}
           </tbody>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import type { PracticeResult } from "../core/engine/PracticeResult";
 import { BrowserStorageAdapter } from "../core/storage/BrowserStorageAdapter";
@@ -68,6 +68,11 @@ type AppView =
   | { name: "combinatorics-session"; settings: QuantSettings }
   | { name: "results"; result: PracticeResult; restartTarget: RestartTarget };
 
+type AppHistoryState = {
+  view: AppView;
+  selectedGameGroupId: string | null;
+};
+
 export default function App() {
   const auth = useAuth();
   const storage = useMemo(() => new BrowserStorageAdapter(), []);
@@ -84,7 +89,68 @@ export default function App() {
     loadQuantSettings(storage, combinatoricsSettingsStorageKey, defaultCombinatoricsSettings)
   );
   const [view, setView] = useState<AppView>({ name: "home" });
+  const [selectedGameGroupId, setSelectedGameGroupId] = useState<string | null>(null);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const isApplyingHistory = useRef(false);
+
+  const navigate = useCallback(
+    (
+      nextView: AppView,
+      nextSelectedGameGroupId = selectedGameGroupId,
+      historyMode: "push" | "replace" = "push"
+    ) => {
+      setView(nextView);
+      setSelectedGameGroupId(nextSelectedGameGroupId);
+
+      if (isApplyingHistory.current || typeof window === "undefined") {
+        return;
+      }
+
+      const historyState: AppHistoryState = {
+        view: nextView,
+        selectedGameGroupId: nextSelectedGameGroupId
+      };
+
+      if (historyMode === "replace") {
+        window.history.replaceState(historyState, "");
+        return;
+      }
+
+      window.history.pushState(historyState, "");
+    },
+    [selectedGameGroupId]
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const initialState: AppHistoryState = {
+      view,
+      selectedGameGroupId
+    };
+    window.history.replaceState(initialState, "");
+
+    const handlePopState = (event: PopStateEvent) => {
+      const state = event.state as Partial<AppHistoryState> | null;
+
+      if (!state?.view) {
+        return;
+      }
+
+      isApplyingHistory.current = true;
+      setView(state.view);
+      setSelectedGameGroupId(state.selectedGameGroupId ?? null);
+      window.setTimeout(() => {
+        isApplyingHistory.current = false;
+      }, 0);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   const updateArithmeticSettings = (settings: ArithmeticSettings) => {
     setArithmeticSettings(settings);
@@ -109,13 +175,13 @@ export default function App() {
   const startArithmeticSession = (settings: ArithmeticSettings) => {
     const normalizedSettings = normalizeArithmeticSettings(settings);
     updateArithmeticSettings(normalizedSettings);
-    setView({ name: "arithmetic-session", settings: normalizedSettings });
+    navigate({ name: "arithmetic-session", settings: normalizedSettings });
   };
 
   const startSequenceSession = (settings: SequenceSettings) => {
     const normalizedSettings = normalizeSequenceSettings(settings);
     updateSequenceSettings(normalizedSettings);
-    setView({ name: "sequence-session", settings: normalizedSettings });
+    navigate({ name: "sequence-session", settings: normalizedSettings });
   };
 
   const startQuantSession = (
@@ -127,12 +193,12 @@ export default function App() {
 
     if (moduleId === "probability") {
       updateProbabilitySettings(normalizedSettings);
-      setView({ name: "probability-session", settings: normalizedSettings });
+      navigate({ name: "probability-session", settings: normalizedSettings });
       return;
     }
 
     updateCombinatoricsSettings(normalizedSettings);
-    setView({ name: "combinatorics-session", settings: normalizedSettings });
+    navigate({ name: "combinatorics-session", settings: normalizedSettings });
   };
 
   const restartSession = (target: RestartTarget) => {
@@ -147,7 +213,7 @@ export default function App() {
     }
 
     if (target.kind === "intuitiveMath") {
-      setView({ name: "intuitive-math-session", moduleId: target.moduleId });
+      navigate({ name: "intuitive-math-session", moduleId: target.moduleId });
       return;
     }
 
@@ -156,11 +222,11 @@ export default function App() {
     }
   };
 
-  const goHome = () => setView({ name: "home" });
-  const goGames = () => setView({ name: "games" });
+  const goHome = () => navigate({ name: "home" }, null);
+  const goGames = () => navigate({ name: "games" }, null);
   const completeSession = (result: PracticeResult, restartTarget: RestartTarget) => {
     setSaveMessage(auth.user ? "Saving result..." : "Log in to save your progress.");
-    setView({ name: "results", result, restartTarget });
+    navigate({ name: "results", result, restartTarget });
 
     if (!auth.user) {
       return;
@@ -212,7 +278,7 @@ export default function App() {
             className={isLeaderboard ? "nav-link active" : "nav-link"}
             type="button"
             aria-current={isLeaderboard ? "page" : undefined}
-            onClick={() => setView({ name: "leaderboard" })}
+            onClick={() => navigate({ name: "leaderboard" }, null)}
           >
             Leaderboard
           </button>
@@ -221,7 +287,7 @@ export default function App() {
               className={isStatistics ? "nav-link active" : "nav-link"}
               type="button"
               aria-current={isStatistics ? "page" : undefined}
-              onClick={() => setView({ name: "statistics" })}
+              onClick={() => navigate({ name: "statistics" }, null)}
             >
               Statistics
             </button>
@@ -235,7 +301,7 @@ export default function App() {
                 type="button"
                 onClick={() => {
                   void auth.logout();
-                  setView({ name: "home" });
+                  navigate({ name: "home" }, null);
                 }}
               >
                 Logout
@@ -243,10 +309,10 @@ export default function App() {
             </>
           ) : (
             <>
-              <button className="nav-link" type="button" onClick={() => setView({ name: "login" })}>
+              <button className="nav-link" type="button" onClick={() => navigate({ name: "login" }, null)}>
                 Login
               </button>
-              <button className="nav-link" type="button" onClick={() => setView({ name: "register" })}>
+              <button className="nav-link" type="button" onClick={() => navigate({ name: "register" }, null)}>
                 Register
               </button>
             </>
@@ -259,44 +325,47 @@ export default function App() {
       {view.name === "games" ? (
         <GamesPage
           modules={availableProblemModules}
+          selectedGroupId={selectedGameGroupId}
+          onSelectGroup={(groupId) => navigate({ name: "games" }, groupId)}
+          onBackToGroups={() => navigate({ name: "games" }, null)}
           onSelectModule={(moduleId) => {
             if (moduleId === problemModules.arithmetic.id) {
-              setView({ name: "arithmetic-settings" });
+              navigate({ name: "arithmetic-settings" });
               return;
             }
 
             if (moduleId === problemModules.sequences.id) {
-              setView({ name: "sequence-settings" });
+              navigate({ name: "sequence-settings" });
               return;
             }
 
             if (moduleId === "eighty-in-eight") {
-              setView({ name: "intuitive-math-session", moduleId: problemModules.eightyInEightMc.id });
+              navigate({ name: "intuitive-math-session", moduleId: problemModules.eightyInEightMc.id });
               return;
             }
 
             if (isIntuitiveMathModuleId(moduleId)) {
-              setView({ name: "intuitive-math-session", moduleId });
+              navigate({ name: "intuitive-math-session", moduleId });
               return;
             }
 
             if (moduleId === problemModules.probability.id) {
-              setView({ name: "probability-settings" });
+              navigate({ name: "probability-settings" });
               return;
             }
 
             if (moduleId === problemModules.combinatorics.id) {
-              setView({ name: "combinatorics-settings" });
+              navigate({ name: "combinatorics-settings" });
             }
           }}
         />
       ) : null}
       {view.name === "leaderboard" ? <LeaderboardPage /> : null}
       {view.name === "login" ? (
-        <LoginPage onDone={goHome} onRegister={() => setView({ name: "register" })} />
+        <LoginPage onDone={goHome} onRegister={() => navigate({ name: "register" }, null)} />
       ) : null}
       {view.name === "register" ? (
-        <RegisterPage onDone={goHome} onLogin={() => setView({ name: "login" })} />
+        <RegisterPage onDone={goHome} onLogin={() => navigate({ name: "login" }, null)} />
       ) : null}
       {view.name === "statistics" ? <StatisticsPage /> : null}
       {view.name === "arithmetic-settings" ? (
@@ -310,7 +379,7 @@ export default function App() {
       {view.name === "arithmetic-session" ? (
         <ArithmeticSessionPage
           settings={view.settings}
-          onBack={() => setView({ name: "arithmetic-settings" })}
+          onBack={() => navigate({ name: "arithmetic-settings" })}
           onFinish={(result) =>
             completeSession(result, { kind: "arithmetic", settings: view.settings })
           }
@@ -327,7 +396,7 @@ export default function App() {
       {view.name === "sequence-session" ? (
         <SequenceSessionPage
           settings={view.settings}
-          onBack={() => setView({ name: "sequence-settings" })}
+          onBack={() => navigate({ name: "sequence-settings" })}
           onFinish={(result) =>
             completeSession(result, { kind: "sequences", settings: view.settings })
           }
@@ -355,7 +424,7 @@ export default function App() {
         <QuantSessionPage
           module={problemModules.probability}
           settings={view.settings}
-          onBack={() => setView({ name: "probability-settings" })}
+          onBack={() => navigate({ name: "probability-settings" })}
           onFinish={(result) =>
             completeSession(result, { kind: "probability", settings: view.settings })
           }
@@ -374,7 +443,7 @@ export default function App() {
         <QuantSessionPage
           module={problemModules.combinatorics}
           settings={view.settings}
-          onBack={() => setView({ name: "combinatorics-settings" })}
+          onBack={() => navigate({ name: "combinatorics-settings" })}
           onFinish={(result) =>
             completeSession(result, { kind: "combinatorics", settings: view.settings })
           }
@@ -384,7 +453,7 @@ export default function App() {
         <ResultsSummary
           result={view.result}
           onRestart={() => restartSession(view.restartTarget)}
-          onHome={() => setView({ name: "home" })}
+          onHome={() => navigate({ name: "home" }, null)}
           saveMessage={saveMessage}
         />
       ) : null}

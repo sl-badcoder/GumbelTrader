@@ -8,9 +8,13 @@ type GameStatisticsCardProps = {
 export function GameStatisticsCard({ title, statistics }: GameStatisticsCardProps) {
   return (
     <article className="panel statistic-card">
-      <h3>{title}</h3>
-      <dl className="result-list">
-        <div>
+      <div className="statistic-card-heading">
+        <h3>{title}</h3>
+        <strong>{statistics.bestScore}</strong>
+        <span>best score</span>
+      </div>
+      <dl className="statistics-list">
+        <div className="primary-statistic">
           <dt>Best score</dt>
           <dd>{statistics.bestScore}</dd>
         </div>

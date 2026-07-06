@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { ProblemModuleMetadata } from "../core/engine/ProblemModule";
 import { availableProblemModules } from ".";
 import { groupProblemModules } from "./gameGroups";
+import { isKnownGame } from "../../server/src/modules/games/gameRegistry";
 
 describe("game module registry and groups", () => {
   it("does not expose the old 80-in-8 module in the visible module list", () => {
@@ -59,5 +60,9 @@ describe("game module registry and groups", () => {
   it("keeps direct lookup data for visible games", () => {
     expect(availableProblemModules.some((module) => module.id === "eighty-in-eight-mc")).toBe(true);
     expect(availableProblemModules.some((module) => module.id === "probability")).toBe(true);
+  });
+
+  it("registers every visible game on the server", () => {
+    expect(availableProblemModules.every((module) => isKnownGame(module.id))).toBe(true);
   });
 });
