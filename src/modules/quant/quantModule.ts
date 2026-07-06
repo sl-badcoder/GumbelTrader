@@ -13,6 +13,11 @@ type QuantModuleConfig = {
   iconLabel: string;
   modeGroup: "practice" | "test";
   defaultSettings: QuantSettings;
+  groupId?: string;
+  groupTitle?: string;
+  groupDescription?: string;
+  groupIcon?: string;
+  order?: number;
 };
 
 export function createQuantModule(

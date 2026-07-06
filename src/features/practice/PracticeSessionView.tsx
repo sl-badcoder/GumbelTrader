@@ -1,9 +1,9 @@
-import { useEffect, useRef, type FormEvent } from "react";
+import { useEffect, useRef, type FormEvent, type KeyboardEvent } from "react";
 import { Button } from "../../shared/components/Button";
 import { Card } from "../../shared/components/Card";
 import { NumberInput } from "../../shared/components/NumberInput";
 
-type PracticeSessionViewProps<TPrompt extends { text: string }> = {
+type PracticeSessionViewProps<TPrompt extends { text: string; choices?: string[] }> = {
   prompt: TPrompt;
   answer: string;
   score: number;
@@ -19,7 +19,7 @@ type PracticeSessionViewProps<TPrompt extends { text: string }> = {
   onSubmit: () => void;
 };
 
-export function PracticeSessionView<TPrompt extends { text: string }>({
+export function PracticeSessionView<TPrompt extends { text: string; choices?: string[] }>({
   prompt,
   answer,
   score,
@@ -35,14 +35,24 @@ export function PracticeSessionView<TPrompt extends { text: string }>({
   onSubmit
 }: PracticeSessionViewProps<TPrompt>) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const hasChoices = prompt.choices !== undefined && prompt.choices.length > 0;
 
   useEffect(() => {
-    if (!isEnded) {
+    if (!isEnded && !hasChoices) {
       inputRef.current?.focus();
     }
-  }, [isEnded, prompt]);
+  }, [hasChoices, isEnded, prompt]);
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onSubmit();
+  };
+
+  const submitChoiceWithEnter = (event: KeyboardEvent<HTMLFormElement>) => {
+    if (!hasChoices || event.key !== "Enter" || answer.length === 0 || isEnded) {
+      return;
+    }
+
     event.preventDefault();
     onSubmit();
   };
@@ -82,22 +92,47 @@ export function PracticeSessionView<TPrompt extends { text: string }>({
         </div>
       </div>
 
-      <form className="prompt-form" onSubmit={submit}>
+      <form className="prompt-form" onKeyDown={submitChoiceWithEnter} onSubmit={submit}>
         <div className={`prompt ${promptClassName}`.trim()} aria-live="polite">
           {prompt.text}
         </div>
-        <div className="answer-row">
-          <NumberInput
-            ref={inputRef}
-            aria-label="Answer"
-            value={answer}
-            disabled={isEnded}
-            onChange={(event) => onAnswerChange(event.target.value)}
-          />
-          <Button disabled={isEnded} type="submit">
-            Submit
-          </Button>
-        </div>
+        {hasChoices ? (
+          <div className="choice-grid" role="radiogroup" aria-label="Answer choices">
+            {prompt.choices?.map((choice) => (
+              <button
+                className={answer === choice ? "choice-button selected" : "choice-button"}
+                disabled={isEnded}
+                key={choice}
+                type="button"
+                role="radio"
+                aria-checked={answer === choice}
+                onClick={() => onAnswerChange(choice)}
+              >
+                {choice}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="answer-row">
+            <NumberInput
+              ref={inputRef}
+              aria-label="Answer"
+              value={answer}
+              disabled={isEnded}
+              onChange={(event) => onAnswerChange(event.target.value)}
+            />
+            <Button disabled={isEnded} type="submit">
+              Submit
+            </Button>
+          </div>
+        )}
+        {hasChoices ? (
+          <div className="answer-row choice-submit-row">
+            <Button disabled={isEnded || answer.length === 0} type="submit">
+              Submit
+            </Button>
+          </div>
+        ) : null}
         {feedback ? <p className="feedback">{feedback}</p> : null}
       </form>
     </Card>

@@ -189,6 +189,50 @@ input {
   gap: 0;
 }
 
+.game-group-grid {
+  display: grid;
+  gap: 0;
+}
+
+.game-group-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  border: 0;
+  border-bottom: 1px solid #d2d2ca;
+  padding: 14px 0;
+  background: transparent;
+  color: #222222;
+  cursor: pointer;
+  text-align: left;
+}
+
+.game-group-card:last-child {
+  border-bottom: 0;
+}
+
+.game-group-card:hover {
+  color: #064c8f;
+}
+
+.game-group-card-main {
+  display: grid;
+  gap: 3px;
+}
+
+.game-group-card-main span,
+.game-count {
+  color: #555555;
+  line-height: 1.4;
+}
+
+.game-count {
+  white-space: nowrap;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
 .game-section {
   border-top: 1px solid #d2d2ca;
   padding-top: 14px;
@@ -199,7 +243,9 @@ input {
 }
 
 .game-section-heading {
-  margin-bottom: 2px;
+  display: grid;
+  gap: 4px;
+  margin-bottom: 8px;
 }
 
 .game-section-heading h3 {
@@ -351,6 +397,36 @@ input {
 .number-input:focus {
   outline: 2px solid #8aa7c7;
   outline-offset: 1px;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.choice-button {
+  min-height: 42px;
+  border: 1px solid #888888;
+  padding: 8px 10px;
+  background: #ffffff;
+  color: #222222;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 700;
+}
+
+.choice-button:hover,
+.choice-button.selected {
+  border-color: #064c8f;
+  background: #eef4fb;
+  color: #064c8f;
+}
+
+.choice-submit-row {
+  justify-content: flex-end;
 }
 
 .fieldset {

@@ -9,6 +9,7 @@ import type {
   ArithmeticSettings
 } from "./arithmeticTypes";
 import { validateArithmeticAnswer } from "./validateArithmeticAnswer";
+import { speedMathGroup } from "../gameGroupMetadata";
 
 export const arithmeticModule: ProblemModule<
   ArithmeticSettings,
@@ -20,6 +21,8 @@ export const arithmeticModule: ProblemModule<
   shortDescription: "Quick arithmetic drills with configurable operators and number ranges.",
   iconLabel: "+-x/",
   modeGroup: "practice",
+  ...speedMathGroup,
+  order: 20,
   defaultSettings: defaultArithmeticSettings,
   createSession: (settings) => ({
     settings: normalizeArithmeticSettings(settings),

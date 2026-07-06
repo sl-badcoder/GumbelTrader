@@ -8,9 +8,9 @@ import { ArithmeticSettingsPage } from "../features/arithmetic/ArithmeticSetting
 import { LoginPage } from "../features/auth/LoginPage";
 import { RegisterPage } from "../features/auth/RegisterPage";
 import { useAuth } from "../features/auth/AuthContext";
-import { EightyInEightSessionPage } from "../features/eightyInEight/EightyInEightSessionPage";
 import { GamesPage } from "../features/home/GamesPage";
 import { HomePage } from "../features/home/HomePage";
+import { IntuitiveMathSessionPage } from "../features/intuitiveMath/IntuitiveMathSessionPage";
 import { LeaderboardPage } from "../features/leaderboard/LeaderboardPage";
 import { QuantSessionPage } from "../features/quant/QuantSessionPage";
 import { QuantSettingsPage } from "../features/quant/QuantSettingsPage";
@@ -24,6 +24,7 @@ import {
 } from "../modules/arithmetic/arithmeticSettings";
 import type { ArithmeticSettings } from "../modules/arithmetic/arithmeticTypes";
 import { availableProblemModules, problemModules } from "../modules";
+import { isIntuitiveMathModuleId } from "../modules/intuitiveMath/modules";
 import {
   defaultCombinatoricsSettings,
   defaultProbabilitySettings,
@@ -43,11 +44,11 @@ const probabilitySettingsStorageKey = "math-practice:probability-settings";
 const combinatoricsSettingsStorageKey = "math-practice:combinatorics-settings";
 
 type RestartTarget =
-  | { moduleId: "arithmetic"; settings: ArithmeticSettings }
-  | { moduleId: "sequences"; settings: SequenceSettings }
-  | { moduleId: "eightyInEight" }
-  | { moduleId: "probability"; settings: QuantSettings }
-  | { moduleId: "combinatorics"; settings: QuantSettings };
+  | { kind: "arithmetic"; settings: ArithmeticSettings }
+  | { kind: "sequences"; settings: SequenceSettings }
+  | { kind: "intuitiveMath"; moduleId: string }
+  | { kind: "probability"; settings: QuantSettings }
+  | { kind: "combinatorics"; settings: QuantSettings };
 
 type AppView =
   | { name: "home" }
@@ -60,7 +61,7 @@ type AppView =
   | { name: "arithmetic-session"; settings: ArithmeticSettings }
   | { name: "sequence-settings" }
   | { name: "sequence-session"; settings: SequenceSettings }
-  | { name: "eighty-in-eight-session" }
+  | { name: "intuitive-math-session"; moduleId: string }
   | { name: "probability-settings" }
   | { name: "probability-session"; settings: QuantSettings }
   | { name: "combinatorics-settings" }
@@ -135,22 +136,24 @@ export default function App() {
   };
 
   const restartSession = (target: RestartTarget) => {
-    if (target.moduleId === "arithmetic") {
+    if (target.kind === "arithmetic") {
       startArithmeticSession(target.settings);
       return;
     }
 
-    if (target.moduleId === "sequences") {
+    if (target.kind === "sequences") {
       startSequenceSession(target.settings);
       return;
     }
 
-    if (target.moduleId === "eightyInEight") {
-      setView({ name: "eighty-in-eight-session" });
+    if (target.kind === "intuitiveMath") {
+      setView({ name: "intuitive-math-session", moduleId: target.moduleId });
       return;
     }
 
-    startQuantSession(target.moduleId, target.settings);
+    if (target.kind === "probability" || target.kind === "combinatorics") {
+      startQuantSession(target.kind, target.settings);
+    }
   };
 
   const goHome = () => setView({ name: "home" });
@@ -267,8 +270,13 @@ export default function App() {
               return;
             }
 
-            if (moduleId === problemModules.eightyInEight.id) {
-              setView({ name: "eighty-in-eight-session" });
+            if (moduleId === "eighty-in-eight") {
+              setView({ name: "intuitive-math-session", moduleId: problemModules.eightyInEightMc.id });
+              return;
+            }
+
+            if (isIntuitiveMathModuleId(moduleId)) {
+              setView({ name: "intuitive-math-session", moduleId });
               return;
             }
 
@@ -304,7 +312,7 @@ export default function App() {
           settings={view.settings}
           onBack={() => setView({ name: "arithmetic-settings" })}
           onFinish={(result) =>
-            completeSession(result, { moduleId: "arithmetic", settings: view.settings })
+            completeSession(result, { kind: "arithmetic", settings: view.settings })
           }
         />
       ) : null}
@@ -321,15 +329,16 @@ export default function App() {
           settings={view.settings}
           onBack={() => setView({ name: "sequence-settings" })}
           onFinish={(result) =>
-            completeSession(result, { moduleId: "sequences", settings: view.settings })
+            completeSession(result, { kind: "sequences", settings: view.settings })
           }
         />
       ) : null}
-      {view.name === "eighty-in-eight-session" ? (
-        <EightyInEightSessionPage
+      {view.name === "intuitive-math-session" ? (
+        <IntuitiveMathSessionPage
+          moduleId={view.moduleId}
           onBack={goGames}
           onFinish={(result) =>
-            completeSession(result, { moduleId: "eightyInEight" })
+            completeSession(result, { kind: "intuitiveMath", moduleId: view.moduleId })
           }
         />
       ) : null}
@@ -348,7 +357,7 @@ export default function App() {
           settings={view.settings}
           onBack={() => setView({ name: "probability-settings" })}
           onFinish={(result) =>
-            completeSession(result, { moduleId: "probability", settings: view.settings })
+            completeSession(result, { kind: "probability", settings: view.settings })
           }
         />
       ) : null}
@@ -367,7 +376,7 @@ export default function App() {
           settings={view.settings}
           onBack={() => setView({ name: "combinatorics-settings" })}
           onFinish={(result) =>
-            completeSession(result, { moduleId: "combinatorics", settings: view.settings })
+            completeSession(result, { kind: "combinatorics", settings: view.settings })
           }
         />
       ) : null}

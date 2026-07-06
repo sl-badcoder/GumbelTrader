@@ -9,6 +9,7 @@ import type {
   SequenceSettings
 } from "./sequenceTypes";
 import { validateSequenceAnswer } from "./validateSequenceAnswer";
+import { reasoningGroup } from "../gameGroupMetadata";
 
 export const sequenceModule: ProblemModule<
   SequenceSettings,
@@ -20,6 +21,8 @@ export const sequenceModule: ProblemModule<
   shortDescription: "Find the next number in arithmetic, geometric, and mixed sequences.",
   iconLabel: "1,2,?",
   modeGroup: "practice",
+  ...reasoningGroup,
+  order: 450,
   defaultSettings: defaultSequenceSettings,
   createSession: (settings) => ({
     settings: normalizeSequenceSettings(settings),

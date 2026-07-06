@@ -1,5 +1,5 @@
 import { arithmeticModule } from "./arithmetic/arithmeticModule";
-import { eightyInEightModule } from "./eightyInEight/eightyInEightModule";
+import { intuitiveMathModules } from "./intuitiveMath/modules";
 import {
   combinatoricsModule,
   probabilityModule
@@ -9,7 +9,17 @@ import { sequenceModule } from "./sequences/sequenceModule";
 export const problemModules = {
   arithmetic: arithmeticModule,
   sequences: sequenceModule,
-  eightyInEight: eightyInEightModule,
+  missingOperand: intuitiveMathModules.missingOperand,
+  decimalPlace: intuitiveMathModules.decimalPlace,
+  fractionTrap: intuitiveMathModules.fractionTrap,
+  magnitudeSense: intuitiveMathModules.magnitudeSense,
+  percentIntuition: intuitiveMathModules.percentIntuition,
+  ratioRateUnits: intuitiveMathModules.ratioRateUnits,
+  fermiEstimation: intuitiveMathModules.fermiEstimation,
+  strategyRecognition: intuitiveMathModules.strategyRecognition,
+  mixedElimination: intuitiveMathModules.mixedElimination,
+  typedHardcore: intuitiveMathModules.typedHardcore,
+  eightyInEightMc: intuitiveMathModules.eightyInEightMc,
   probability: probabilityModule,
   combinatorics: combinatoricsModule
 };

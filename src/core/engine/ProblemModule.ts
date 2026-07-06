@@ -6,6 +6,11 @@ export type ProblemModuleMetadata = {
   shortDescription: string;
   iconLabel: string;
   modeGroup: "practice" | "test";
+  groupId?: string;
+  groupTitle?: string;
+  groupDescription?: string;
+  groupIcon?: string;
+  order?: number;
 };
 
 export type ProblemModule<TSettings, TSession, TPrompt> = ProblemModuleMetadata & {

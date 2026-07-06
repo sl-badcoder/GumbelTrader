@@ -1,4 +1,6 @@
+import { useMemo, useState } from "react";
 import type { ProblemModuleMetadata } from "../../core/engine/ProblemModule";
+import { groupProblemModules } from "../../modules/gameGroups";
 import { GameCard } from "./GameCard";
 
 type GamesPageProps = {
@@ -7,8 +9,9 @@ type GamesPageProps = {
 };
 
 export function GamesPage({ modules, onSelectModule }: GamesPageProps) {
-  const practiceModules = modules.filter((module) => module.modeGroup === "practice");
-  const testModules = modules.filter((module) => module.modeGroup === "test");
+  const groups = useMemo(() => groupProblemModules(modules), [modules]);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const selectedGroup = groups.find((group) => group.id === selectedGroupId);
 
   return (
     <main className="page">
@@ -17,53 +20,69 @@ export function GamesPage({ modules, onSelectModule }: GamesPageProps) {
           <h2 id="available-games">Games</h2>
           <span>{modules.length} available</span>
         </div>
-        <p className="list-intro">
-          Choose a focused practice mode or a fixed-format test simulation.
-        </p>
-        <GameSection
-          title="Practice"
-          description="Build speed and accuracy by topic with configurable drills."
-          modules={practiceModules}
-          onSelectModule={onSelectModule}
-        />
-        <GameSection
-          title="Test Simulations"
-          description="Run fixed-format timed tests under assessment-style constraints."
-          modules={testModules}
-          onSelectModule={onSelectModule}
-        />
+        {selectedGroup ? (
+          <GameGroupDetail
+            group={selectedGroup}
+            onBack={() => setSelectedGroupId(null)}
+            onSelectModule={onSelectModule}
+          />
+        ) : (
+          <>
+            <p className="list-intro">
+              Choose a category, then pick a focused practice mode or fixed-format test.
+            </p>
+            <div className="game-group-grid">
+              {groups.map((group) => (
+                <button
+                  className="game-group-card"
+                  key={group.id}
+                  type="button"
+                  onClick={() => setSelectedGroupId(group.id)}
+                >
+                  <span className="game-icon" aria-hidden="true">
+                    {group.iconLabel}
+                  </span>
+                  <span className="game-group-card-main">
+                    <strong>{group.title}</strong>
+                    <span>{group.description}</span>
+                  </span>
+                  <span className="game-count">
+                    {group.modules.length} {group.modules.length === 1 ? "game" : "games"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </section>
     </main>
   );
 }
 
-type GameSectionProps = {
-  title: string;
-  description: string;
-  modules: ProblemModuleMetadata[];
+type GameGroupDetailProps = {
+  group: ReturnType<typeof groupProblemModules>[number];
+  onBack: () => void;
   onSelectModule: (moduleId: string) => void;
 };
 
-function GameSection({
-  title,
-  description,
-  modules,
+function GameGroupDetail({
+  group,
+  onBack,
   onSelectModule
-}: GameSectionProps) {
-  if (modules.length === 0) {
-    return null;
-  }
-
-  const headingId = `game-section-${title.toLowerCase().replace(/\s+/g, "-")}`;
+}: GameGroupDetailProps) {
+  const headingId = `game-group-${group.id}`;
 
   return (
     <section className="game-section" aria-labelledby={headingId}>
       <div className="game-section-heading">
-        <h3 id={headingId}>{title}</h3>
-        <p>{description}</p>
+        <button className="plain-link" type="button" onClick={onBack}>
+          Back to categories
+        </button>
+        <h3 id={headingId}>{group.title}</h3>
+        <p>{group.description}</p>
       </div>
       <div className="game-list-items">
-        {modules.map((module) => (
+        {group.modules.map((module) => (
           <GameCard key={module.id} module={module} onSelect={onSelectModule} />
         ))}
       </div>
