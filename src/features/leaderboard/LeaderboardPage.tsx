@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { getLeaderboard, type LeaderboardEntry } from "../../api/leaderboardApi";
+import { useAuth } from "../auth/AuthContext";
 import { availableProblemModules } from "../../modules";
 
 export function LeaderboardPage() {
+  const { user } = useAuth();
   const [gameId, setGameId] = useState(availableProblemModules[0]?.id ?? "arithmetic");
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -43,13 +45,26 @@ export function LeaderboardPage() {
             </tr>
           </thead>
           <tbody>
-            {entries.map((entry) => (
-              <tr key={`${entry.userId}-${entry.rank}`}>
-                <td data-label="Rank">{entry.rank}</td>
-                <td data-label="Name">{entry.displayName}</td>
-                <td data-label="Best score">{entry.bestScore}</td>
-              </tr>
-            ))}
+            {entries.map((entry) => {
+              const isCurrentUser = entry.userId === user?.id;
+
+              return (
+                <tr
+                  key={`${entry.userId}-${entry.rank}`}
+                  className={isCurrentUser ? "leaderboard-row-current" : undefined}
+                  aria-label={isCurrentUser ? `${entry.displayName}, your leaderboard position` : undefined}
+                >
+                  <td data-label="Rank">{entry.rank}</td>
+                  <td data-label="Name">
+                    <span className="leaderboard-player">
+                      {entry.displayName}
+                      {isCurrentUser ? <span className="leaderboard-current-badge">You</span> : null}
+                    </span>
+                  </td>
+                  <td data-label="Best score">{entry.bestScore}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </section>
