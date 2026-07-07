@@ -51,11 +51,11 @@ describe("intuitive math generators", () => {
 
   it("decimal-place distractors differ by powers of 10", () => {
     const prompt = generateDecimalPlacePrompt(makeSession(0));
+    const numericAnswer = Number(prompt.answer);
 
     expectValidChoices(prompt);
-    expect(decimalShiftDistractors(Number(prompt.answer))).toEqual(
-      expect.arrayContaining(["0.0057", "0.000057", "0.057"])
-    );
+    const distractors = decimalShiftDistractors(numericAnswer).map(Number);
+    expect(distractors).toEqual(expect.arrayContaining([expect.closeTo(numericAnswer * 10), expect.closeTo(numericAnswer / 10)]));
   });
 
   it("missing operand equations solve correctly for all six forms", () => {
@@ -72,11 +72,14 @@ describe("intuitive math generators", () => {
   });
 
   it("fraction division uses the reciprocal and includes the forgot-reciprocal trap", () => {
-    const prompt = generateFractionTrapPrompt(makeSession(2));
+    const prompts = Array.from({ length: 40 }, (_, index) =>
+      generateFractionTrapPrompt(makeSession(index))
+    );
+    const divisionPrompt = prompts.find((prompt) => prompt.text.includes(" / "));
 
-    expect(prompt.answer).toBe("2/3");
-    expect(prompt.choices).toContain("27/128");
-    expect(prompt.trapTags).toContain("forgotReciprocal");
+    expect(divisionPrompt).toBeDefined();
+    expect(divisionPrompt?.explanation).toContain("reciprocal");
+    expect(divisionPrompt?.trapTags).toContain("forgotReciprocal");
   });
 
   it("percentage chains are multiplicative and reverse percentage solves original times factor", () => {
@@ -108,9 +111,13 @@ describe("intuitive math generators", () => {
     expect(module.defaultSettings.startCountdownSeconds).toBe(5);
 
     const session = module.createSession(module.defaultSettings);
+    const questionTexts = new Set<string>();
     for (let index = 0; index < 80; index += 1) {
-      expectValidChoices(module.generatePrompt({ ...session, promptIndex: index }));
+      const prompt = module.generatePrompt({ ...session, promptIndex: index });
+      expectValidChoices(prompt);
+      questionTexts.add(prompt.text);
     }
+    expect(questionTexts.size).toBeGreaterThanOrEqual(60);
   });
 
   it("typed hardcore mode has no choices", () => {

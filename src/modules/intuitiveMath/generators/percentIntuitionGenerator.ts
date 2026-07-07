@@ -1,45 +1,12 @@
-import { pickCyclic, uniqueChoices } from "../distractorFactory";
+import { randomIntInclusive } from "../../../shared/utils/random";
+import { uniqueChoices } from "../distractorFactory";
 import type { IntuitiveMathPrompt, IntuitiveMathSession } from "../intuitiveMathTypes";
 import { formatNumber, formatPercent } from "../numberFormatting";
 
 export function generatePercentIntuitionPrompt(
   session: IntuitiveMathSession
 ): IntuitiveMathPrompt {
-  const cases = [
-    {
-      text: "37.5% of 64",
-      answer: "24",
-      distractors: ["18", "32", "27"],
-      explanation: "37.5% is 3/8, and 3/8 of 64 is 24.",
-      skills: ["percentIntuition"] as const,
-      traps: ["baseRateConfusion"] as const
-    },
-    {
-      text: "24 is 12.5% of what?",
-      answer: "192",
-      distractors: ["3", "96", "300"],
-      explanation: "12.5% is 1/8, so the original is 24 x 8 = 192.",
-      skills: ["reversePercentage"] as const,
-      traps: ["wrongInverseOperation"] as const
-    },
-    {
-      text: "After +20% and then -20%, what percentage of the original remains?",
-      answer: "96%",
-      distractors: ["100%", "80%", "104%"],
-      explanation: "+20% then -20% is 1.2 x 0.8 = 0.96, not 1.0.",
-      skills: ["percentageChain"] as const,
-      traps: ["additivePercentChain"] as const
-    },
-    {
-      text: "66.7% of 90 is closest to",
-      answer: "60",
-      distractors: ["30", "45", "75"],
-      explanation: "66.7% is about 2/3, and 2/3 of 90 is 60.",
-      skills: ["percentIntuition"] as const,
-      traps: ["baseRateConfusion"] as const
-    }
-  ];
-  const promptCase = pickCyclic(cases, session.promptIndex);
+  const promptCase = buildPercentIntuitionCase();
 
   return {
     id: `percent-intuition-${session.promptIndex}`,
@@ -50,6 +17,70 @@ export function generatePercentIntuitionPrompt(
     skillTags: [...promptCase.skills, "optionElimination"],
     trapTags: [...promptCase.traps],
     acceptsTypedAnswer: session.settings.acceptsTypedAnswer
+  };
+}
+
+function buildPercentIntuitionCase() {
+  const form = randomIntInclusive(0, 3);
+  const commonPercents = [
+    { percent: 12.5, denominator: 8 },
+    { percent: 20, denominator: 5 },
+    { percent: 25, denominator: 4 },
+    { percent: 37.5, denominator: 8, numerator: 3 },
+    { percent: 50, denominator: 2 },
+    { percent: 75, denominator: 4, numerator: 3 }
+  ];
+  const item = commonPercents[randomIntInclusive(0, commonPercents.length - 1)] ?? commonPercents[0]!;
+  const numerator = item.numerator ?? 1;
+
+  if (form === 0) {
+    const value = item.denominator * randomIntInclusive(6, 30);
+    const answer = (value / item.denominator) * numerator;
+    return {
+      text: `${item.percent}% of ${value}`,
+      answer: formatNumber(answer),
+      distractors: [formatNumber(value / item.denominator), formatNumber(value - answer), formatNumber(answer + item.denominator)],
+      explanation: `${item.percent}% can be treated as ${numerator}/${item.denominator}.`,
+      skills: ["percentIntuition"] as const,
+      traps: ["baseRateConfusion"] as const
+    };
+  }
+
+  if (form === 1) {
+    const original = item.denominator * randomIntInclusive(8, 28);
+    const finalValue = (original / item.denominator) * numerator;
+    return {
+      text: `${formatNumber(finalValue)} is ${item.percent}% of what?`,
+      answer: formatNumber(original),
+      distractors: [formatNumber(finalValue * item.denominator), formatNumber(finalValue / item.denominator), formatNumber(original - finalValue)],
+      explanation: `Divide by ${item.percent}% to recover the original value.`,
+      skills: ["reversePercentage"] as const,
+      traps: ["wrongInverseOperation"] as const
+    };
+  }
+
+  if (form === 2) {
+    const change = [10, 20, 25, 50][randomIntInclusive(0, 3)] ?? 20;
+    const answer = solvePercentChain(100, [change, -change]);
+    return {
+      text: `After +${change}% and then -${change}%, what percentage of the original remains?`,
+      answer,
+      distractors: ["100%", `${100 - change}%`, `${100 + change}%`],
+      explanation: `The changes compound: ${(1 + change / 100).toFixed(2)} x ${(1 - change / 100).toFixed(2)}.`,
+      skills: ["percentageChain"] as const,
+      traps: ["additivePercentChain"] as const
+    };
+  }
+
+  const base = item.denominator * randomIntInclusive(8, 40);
+  const answer = (base / item.denominator) * numerator;
+  return {
+    text: `${item.percent}% of ${base} is closest to`,
+    answer: formatNumber(answer),
+    distractors: [formatNumber(answer / 2), formatNumber(answer + base / item.denominator), formatNumber(base - answer)],
+    explanation: `Use the nearby fraction ${numerator}/${item.denominator}.`,
+    skills: ["percentIntuition"] as const,
+    traps: ["baseRateConfusion"] as const
   };
 }
 

@@ -1,4 +1,5 @@
-import { pickCyclic, uniqueChoices } from "../distractorFactory";
+import { randomIntInclusive } from "../../../shared/utils/random";
+import { uniqueChoices } from "../distractorFactory";
 import type { IntuitiveMathPrompt, IntuitiveMathSession } from "../intuitiveMathTypes";
 
 export function generateStrategyRecognitionPrompt(
@@ -28,9 +29,33 @@ export function generateStrategyRecognitionPrompt(
       answer: "Invariant",
       distractors: ["Pigeonhole principle", "Symmetry", "Working backwards"],
       explanation: "A quantity that cannot change under allowed moves is an invariant."
+    },
+    {
+      text: "A geometry problem has two equal-looking halves after a reflection. Which strategy is most promising?",
+      answer: "Symmetry",
+      distractors: ["Induction", "Pigeonhole principle", "Generating functions"],
+      explanation: "Reflection or rotation symmetry can reduce the amount that must be checked."
+    },
+    {
+      text: "A problem asks for the maximum possible value, and one extreme object seems forced. Which strategy fits?",
+      answer: "Extremal principle",
+      distractors: ["Counting two ways", "Induction", "Modulo arithmetic"],
+      explanation: "Choosing the largest, smallest, leftmost, or rightmost object often exposes a constraint."
+    },
+    {
+      text: "A final state is easy to describe, but forward moves branch heavily. Which strategy should you try?",
+      answer: "Working backwards",
+      distractors: ["Symmetry", "Pigeonhole principle", "Counting two ways"],
+      explanation: "When the end condition is tighter than the start, reverse moves can simplify the search."
+    },
+    {
+      text: "A counting identity has a left side that selects a chair first and a right side that selects a team first. Which strategy fits?",
+      answer: "Counting two ways",
+      distractors: ["Invariant", "Contradiction", "Extremal principle"],
+      explanation: "Both expressions count the same objects with different first choices."
     }
   ];
-  const promptCase = pickCyclic(cases, session.promptIndex);
+  const promptCase = cases[randomIntInclusive(0, cases.length - 1)] ?? cases[0]!;
 
   return {
     id: `strategy-recognition-${session.promptIndex}`,

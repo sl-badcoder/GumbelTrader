@@ -1,32 +1,11 @@
-import { magnitudeBucketDistractors, pickCyclic, uniqueChoices } from "../distractorFactory";
+import { randomIntInclusive } from "../../../shared/utils/random";
+import { magnitudeBucketDistractors, uniqueChoices } from "../distractorFactory";
 import type { IntuitiveMathPrompt, IntuitiveMathSession } from "../intuitiveMathTypes";
 
 export function generateMagnitudeSensePrompt(
   session: IntuitiveMathSession
 ): IntuitiveMathPrompt {
-  const cases = [
-    {
-      text: "60 x 60 x 60 is closest to which bucket?",
-      answer: "10^5",
-      explanation: "60^3 = 6^3 x 10^3 = 216,000, so 10^5 is the right bucket."
-    },
-    {
-      text: "300 x 400 x 50 is closest to which bucket?",
-      answer: "10^6",
-      explanation: "3 x 4 x 5 = 60 and 10^2 x 10^2 x 10 = 10^5, giving 6,000,000."
-    },
-    {
-      text: "80^3 is closest to 10^?",
-      answer: "10^6",
-      explanation: "80^3 = 512,000, which is closer to 10^6 than 10^5."
-    },
-    {
-      text: "0.19 x 0.003 is closest to which bucket?",
-      answer: "10^-4",
-      explanation: "0.2 x 0.003 = 0.0006, which sits near 10^-4."
-    }
-  ];
-  const promptCase = pickCyclic(cases, session.promptIndex);
+  const promptCase = buildMagnitudeSenseCase();
 
   return {
     id: `magnitude-sense-${session.promptIndex}`,
@@ -38,4 +17,42 @@ export function generateMagnitudeSensePrompt(
     trapTags: ["magnitudeError", "decimalShift"],
     acceptsTypedAnswer: session.settings.acceptsTypedAnswer
   };
+}
+
+function buildMagnitudeSenseCase() {
+  const form = randomIntInclusive(0, 2);
+
+  if (form === 0) {
+    const left = randomIntInclusive(20, 90);
+    const right = randomIntInclusive(20, 90);
+    const third = randomIntInclusive(10, 90);
+    const value = left * right * third;
+    return {
+      text: `${left} x ${right} x ${third} is closest to which bucket?`,
+      answer: bucket(value),
+      explanation: "Estimate the product and choose the nearest power-of-10 bucket."
+    };
+  }
+
+  if (form === 1) {
+    const base = randomIntInclusive(20, 95);
+    const power = randomIntInclusive(2, 3);
+    return {
+      text: `${base}^${power} is closest to 10^?`,
+      answer: bucket(base ** power),
+      explanation: "Rewrite the base as a one-digit number times a power of 10."
+    };
+  }
+
+  const left = randomIntInclusive(11, 99) / 100;
+  const right = randomIntInclusive(2, 9) / 1000;
+  return {
+    text: `${left.toFixed(2)} x ${right.toFixed(3)} is closest to which bucket?`,
+    answer: bucket(left * right),
+    explanation: "Use a nearby one-digit estimate, then track the decimal powers."
+  };
+}
+
+function bucket(value: number): string {
+  return `10^${Math.round(Math.log10(Math.abs(value)))}`;
 }

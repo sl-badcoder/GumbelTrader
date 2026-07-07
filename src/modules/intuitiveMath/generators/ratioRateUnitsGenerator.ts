@@ -1,36 +1,11 @@
-import { pickCyclic, uniqueChoices } from "../distractorFactory";
+import { randomIntInclusive } from "../../../shared/utils/random";
+import { uniqueChoices } from "../distractorFactory";
 import type { IntuitiveMathPrompt, IntuitiveMathSession } from "../intuitiveMathTypes";
 
 export function generateRatioRateUnitsPrompt(
   session: IntuitiveMathSession
 ): IntuitiveMathPrompt {
-  const cases = [
-    {
-      text: "3 machines make 18 units in 6 minutes. Units per machine per minute?",
-      answer: "1",
-      distractors: ["3", "6", "9"],
-      explanation: "The target unit is units per machine per minute: 18 / 3 / 6 = 1."
-    },
-    {
-      text: "A car travels 150 km in 2.5 hours. What is the speed in km/hour?",
-      answer: "60",
-      distractors: ["37.5", "75", "150"],
-      explanation: "Speed is distance divided by time: 150 / 2.5 = 60 km/hour."
-    },
-    {
-      text: "A 750 g bag costs $6. What is the price per kg?",
-      answer: "$8",
-      distractors: ["$4.50", "$6.75", "$10"],
-      explanation: "750 g is 0.75 kg, so $6 / 0.75 = $8 per kg."
-    },
-    {
-      text: "5 workers finish 40 tasks in 4 hours. Tasks per worker per hour?",
-      answer: "2",
-      distractors: ["8", "10", "20"],
-      explanation: "Divide tasks by workers and hours: 40 / 5 / 4 = 2."
-    }
-  ];
-  const promptCase = pickCyclic(cases, session.promptIndex);
+  const promptCase = buildRatioRateUnitsCase();
 
   return {
     id: `ratio-rate-units-${session.promptIndex}`,
@@ -42,4 +17,60 @@ export function generateRatioRateUnitsPrompt(
     trapTags: ["wrongInverseOperation", "baseRateConfusion"],
     acceptsTypedAnswer: session.settings.acceptsTypedAnswer
   };
+}
+
+function buildRatioRateUnitsCase() {
+  const form = randomIntInclusive(0, 3);
+
+  if (form === 0) {
+    const machines = randomIntInclusive(2, 8);
+    const minutes = randomIntInclusive(3, 12);
+    const rate = randomIntInclusive(1, 6);
+    const units = machines * minutes * rate;
+    return {
+      text: `${machines} machines make ${units} units in ${minutes} minutes. Units per machine per minute?`,
+      answer: String(rate),
+      distractors: [String(units / machines), String(units / minutes), String(rate * machines)],
+      explanation: "Divide units by machines and by minutes."
+    };
+  }
+
+  if (form === 1) {
+    const hoursTenths = randomIntInclusive(10, 40);
+    const speed = randomIntInclusive(30, 110);
+    const distance = (hoursTenths / 10) * speed;
+    return {
+      text: `A car travels ${distance} km in ${hoursTenths / 10} hours. What is the speed in km/hour?`,
+      answer: String(speed),
+      distractors: [String(Math.round(distance)), String(Math.round(speed / 2)), String(Math.round(speed * 1.25))],
+      explanation: "Speed is distance divided by time."
+    };
+  }
+
+  if (form === 2) {
+    const grams = [250, 500, 750, 1250][randomIntInclusive(0, 3)] ?? 750;
+    const pricePerKg = randomIntInclusive(4, 18);
+    const price = (grams / 1000) * pricePerKg;
+    return {
+      text: `A ${grams} g bag costs $${formatMoney(price)}. What is the price per kg?`,
+      answer: `$${formatMoney(pricePerKg)}`,
+      distractors: [`$${formatMoney(price)}`, `$${formatMoney(pricePerKg / 2)}`, `$${formatMoney(pricePerKg + 2)}`],
+      explanation: "Convert grams to kilograms, then divide price by kilograms."
+    };
+  }
+
+  const workers = randomIntInclusive(2, 8);
+  const hours = randomIntInclusive(2, 8);
+  const rate = randomIntInclusive(1, 5);
+  const tasks = workers * hours * rate;
+  return {
+    text: `${workers} workers finish ${tasks} tasks in ${hours} hours. Tasks per worker per hour?`,
+    answer: String(rate),
+    distractors: [String(tasks / workers), String(tasks / hours), String(rate * hours)],
+    explanation: "Divide tasks by workers and hours."
+  };
+}
+
+function formatMoney(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0$/, "");
 }

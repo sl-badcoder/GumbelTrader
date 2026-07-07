@@ -1,4 +1,5 @@
-import { pickCyclic, uniqueChoices } from "../distractorFactory";
+import { randomIntInclusive } from "../../../shared/utils/random";
+import { uniqueChoices } from "../distractorFactory";
 import type { IntuitiveMathPrompt, IntuitiveMathSession } from "../intuitiveMathTypes";
 
 export function generateFermiPrompt(session: IntuitiveMathSession): IntuitiveMathPrompt {
@@ -26,9 +27,33 @@ export function generateFermiPrompt(session: IntuitiveMathSession): IntuitiveMat
       answer: "10^5",
       choices: ["10^3", "10^4", "10^5", "10^7"],
       explanation: "24 x 60 x 60 = 86,400, so 10^5 is a simple upper-order bound."
+    },
+    {
+      text: "About how many seconds are in an hour?",
+      answer: "10^3",
+      choices: ["10^2", "10^3", "10^4", "10^5"],
+      explanation: "60 x 60 = 3,600, which is on the order of 10^3."
+    },
+    {
+      text: "About how many hours are in a year?",
+      answer: "10^4",
+      choices: ["10^2", "10^3", "10^4", "10^5"],
+      explanation: "365 x 24 is about 8,800 hours."
+    },
+    {
+      text: "A country has 80 million people. If 1 in 100 buys an item, purchases are closest to",
+      answer: "10^6",
+      choices: ["10^4", "10^5", "10^6", "10^8"],
+      explanation: "80,000,000 / 100 = 800,000, which is closest to 10^6."
+    },
+    {
+      text: "Which assumption matters most when estimating monthly revenue for a gym?",
+      answer: "Members and average monthly fee",
+      choices: ["Wall color", "Members and average monthly fee", "Logo font", "Number of mirrors"],
+      explanation: "Revenue is driven mainly by member count times average fee."
     }
   ];
-  const promptCase = pickCyclic(cases, session.promptIndex);
+  const promptCase = cases[randomIntInclusive(0, cases.length - 1)] ?? cases[0]!;
 
   return {
     id: `fermi-estimation-${session.promptIndex}`,

@@ -189,6 +189,11 @@ export function getQuantQuestion(
   difficulty: QuantDifficulty,
   random: RandomNumberGenerator = Math.random
 ): QuantQuestion {
+  const generatedQuestion = generateQuantQuestion(category, difficulty, random);
+  if (generatedQuestion) {
+    return generatedQuestion;
+  }
+
   const questions = quantQuestionBank.filter((question) => {
     const categoryMatches = category === "mixed" || question.category === category;
     const difficultyMatches = difficulty === "mixed" || question.difficulty === difficulty;
@@ -203,4 +208,416 @@ export function getQuantQuestion(
   }
 
   return question;
+}
+
+function generateQuantQuestion(
+  category: QuantCategory,
+  difficulty: QuantDifficulty,
+  random: RandomNumberGenerator
+): QuantQuestion | null {
+  const resolvedCategory =
+    category === "mixed"
+      ? (randomIntInclusive(0, 1, random) === 0 ? "probability" : "combinatorics")
+      : category;
+  const resolvedDifficulty =
+    difficulty === "mixed"
+      ? (["easy", "medium", "hard"] as const)[randomIntInclusive(0, 2, random)] ?? "easy"
+      : difficulty;
+
+  return resolvedCategory === "probability"
+    ? generateProbabilityQuestion(resolvedDifficulty, random)
+    : generateCombinatoricsQuestion(resolvedDifficulty, random);
+}
+
+function generateProbabilityQuestion(
+  difficulty: Exclude<QuantDifficulty, "mixed">,
+  random: RandomNumberGenerator
+): QuantQuestion {
+  const templates =
+    difficulty === "easy"
+      ? [coinAtLeastOneHead, diceExactSum, dieAtLeastValue]
+      : difficulty === "medium"
+        ? [cardsSameSuit, diceAtLeastOneTarget, expectedDiePayout, coinExactlyHeads]
+        : [conditionalDieSum, cardsWithoutReplacement, binomialAtLeastHeads, expectedTwoOutcomeGame];
+  return templates[randomIntInclusive(0, templates.length - 1, random)]!(random);
+}
+
+function coinAtLeastOneHead(random: RandomNumberGenerator): QuantQuestion {
+  const tosses = randomIntInclusive(2, 7, random);
+  return {
+    id: `prob-coin-at-least-one-${tosses}`,
+    category: "probability",
+    difficulty: "easy",
+    tags: ["probability", "coins", "complement-counting"],
+    text: `${tosses} fair coins are tossed. What is the probability of getting at least one head? Enter a decimal to 4 places.`,
+    answer: 1 - 1 / 2 ** tosses,
+    explanation: `Use the complement: 1 - P(no heads) = 1 - (1/2)^${tosses}.`
+  };
+}
+
+function diceExactSum(random: RandomNumberGenerator): QuantQuestion {
+  const sum = randomIntInclusive(3, 11, random);
+  const favorable = countDiceSum(sum);
+  return {
+    id: `prob-dice-sum-${sum}`,
+    category: "probability",
+    difficulty: "easy",
+    tags: ["probability", "dice", "counting"],
+    text: `Two fair six-sided dice are rolled. What is the probability that the sum is ${sum}? Enter a decimal to 4 places.`,
+    answer: favorable / 36,
+    explanation: `There are ${favorable} favorable outcomes out of 36 equally likely rolls.`
+  };
+}
+
+function dieAtLeastValue(random: RandomNumberGenerator): QuantQuestion {
+  const threshold = randomIntInclusive(2, 6, random);
+  const favorable = 7 - threshold;
+  return {
+    id: `prob-die-at-least-${threshold}`,
+    category: "probability",
+    difficulty: "easy",
+    tags: ["probability", "dice", "counting"],
+    text: `A fair six-sided die is rolled. What is the probability of rolling at least ${threshold}? Enter a decimal to 4 places.`,
+    answer: favorable / 6,
+    explanation: `${favorable} faces are at least ${threshold}, out of 6 total faces.`
+  };
+}
+
+function cardsSameSuit(random: RandomNumberGenerator): QuantQuestion {
+  const draws = randomIntInclusive(2, 4, random);
+  let probability = 1;
+  for (let draw = 1; draw < draws; draw += 1) {
+    probability *= (13 - draw) / (52 - draw);
+  }
+  return {
+    id: `prob-cards-same-suit-${draws}`,
+    category: "probability",
+    difficulty: "medium",
+    tags: ["probability", "cards", "dependent-events"],
+    text: `${draws} cards are drawn without replacement from a standard deck. What is the probability they are all the same suit? Enter a decimal to 4 places.`,
+    answer: probability,
+    explanation: "After the first card fixes the suit, each later card must match that suit."
+  };
+}
+
+function diceAtLeastOneTarget(random: RandomNumberGenerator): QuantQuestion {
+  const dice = randomIntInclusive(2, 4, random);
+  const target = randomIntInclusive(1, 6, random);
+  return {
+    id: `prob-dice-at-least-one-${target}-${dice}`,
+    category: "probability",
+    difficulty: "medium",
+    tags: ["probability", "dice", "complement-counting"],
+    text: `${dice} fair dice are rolled. What is the probability that at least one die shows a ${target}? Enter a decimal to 4 places.`,
+    answer: 1 - (5 / 6) ** dice,
+    explanation: `Use the complement: 1 - P(no ${target}s) = 1 - (5/6)^${dice}.`
+  };
+}
+
+function expectedDiePayout(random: RandomNumberGenerator): QuantQuestion {
+  const payout = randomIntInclusive(4, 20, random);
+  const winningFaces = randomIntInclusive(1, 3, random);
+  return {
+    id: `prob-ev-die-${payout}-${winningFaces}`,
+    category: "probability",
+    difficulty: "medium",
+    tags: ["probability", "expected-value", "dice"],
+    text: `A fair die pays $${payout} on ${winningFaces} winning ${winningFaces === 1 ? "face" : "faces"} and $0 otherwise. What is the expected payout in dollars? Enter a decimal to 4 places.`,
+    answer: payout * (winningFaces / 6),
+    explanation: `Expected value is ${payout} x ${winningFaces}/6.`
+  };
+}
+
+function coinExactlyHeads(random: RandomNumberGenerator): QuantQuestion {
+  const tosses = randomIntInclusive(4, 8, random);
+  const heads = randomIntInclusive(1, tosses - 1, random);
+  return {
+    id: `prob-binomial-exact-${heads}-of-${tosses}`,
+    category: "probability",
+    difficulty: "medium",
+    tags: ["probability", "coins", "binomial"],
+    text: `A fair coin is tossed ${tosses} times. What is the probability of exactly ${heads} heads? Enter a decimal to 4 places.`,
+    answer: combination(tosses, heads) / 2 ** tosses,
+    explanation: `Choose the head positions: C(${tosses},${heads}) / 2^${tosses}.`
+  };
+}
+
+function conditionalDieSum(random: RandomNumberGenerator): QuantQuestion {
+  const knownMinimum = randomIntInclusive(3, 8, random);
+  const targetSum = randomIntInclusive(knownMinimum, 12, random);
+  const denominator = Array.from({ length: 11 }, (_, index) => index + 2)
+    .filter((sum) => sum >= knownMinimum)
+    .reduce((total, sum) => total + countDiceSum(sum), 0);
+  const numerator = countDiceSum(targetSum);
+  return {
+    id: `prob-conditional-dice-${targetSum}-given-${knownMinimum}`,
+    category: "probability",
+    difficulty: "hard",
+    tags: ["probability", "dice", "conditional-probability"],
+    text: `Two fair dice are rolled. Given that their sum is at least ${knownMinimum}, what is the probability that the sum is ${targetSum}? Enter a decimal to 4 places.`,
+    answer: numerator / denominator,
+    explanation: `Restrict the sample space to sums at least ${knownMinimum}, then count the ${targetSum} outcomes.`
+  };
+}
+
+function cardsWithoutReplacement(random: RandomNumberGenerator): QuantQuestion {
+  const ranks = ["aces", "kings", "queens", "jacks"];
+  const rank = ranks[randomIntInclusive(0, ranks.length - 1, random)] ?? "aces";
+  const draws = randomIntInclusive(2, 3, random);
+  let probability = 1;
+  for (let draw = 0; draw < draws; draw += 1) {
+    probability *= (4 - draw) / (52 - draw);
+  }
+  return {
+    id: `prob-cards-${draws}-${rank}`,
+    category: "probability",
+    difficulty: "hard",
+    tags: ["probability", "cards", "dependent-events"],
+    text: `${draws} cards are drawn without replacement from a standard deck. What is the probability all are ${rank}? Enter a decimal to 4 places.`,
+    answer: probability,
+    explanation: "Multiply the shrinking favorable-rank count over the shrinking deck size."
+  };
+}
+
+function binomialAtLeastHeads(random: RandomNumberGenerator): QuantQuestion {
+  const tosses = randomIntInclusive(5, 9, random);
+  const heads = randomIntInclusive(Math.ceil(tosses / 2), tosses - 1, random);
+  let favorable = 0;
+  for (let count = heads; count <= tosses; count += 1) {
+    favorable += combination(tosses, count);
+  }
+  return {
+    id: `prob-binomial-at-least-${heads}-of-${tosses}`,
+    category: "probability",
+    difficulty: "hard",
+    tags: ["probability", "coins", "binomial"],
+    text: `A fair coin is tossed ${tosses} times. What is the probability of at least ${heads} heads? Enter a decimal to 4 places.`,
+    answer: favorable / 2 ** tosses,
+    explanation: `Add C(${tosses},k) for k = ${heads} through ${tosses}, then divide by 2^${tosses}.`
+  };
+}
+
+function expectedTwoOutcomeGame(random: RandomNumberGenerator): QuantQuestion {
+  const winProbabilityDenominator = randomIntInclusive(3, 8, random);
+  const payout = randomIntInclusive(8, 30, random);
+  const cost = randomIntInclusive(1, 10, random);
+  return {
+    id: `prob-ev-game-${payout}-${cost}-${winProbabilityDenominator}`,
+    category: "probability",
+    difficulty: "hard",
+    tags: ["probability", "expected-value"],
+    text: `A game costs $${cost} to play and pays $${payout} with probability 1/${winProbabilityDenominator}; otherwise it pays $0. What is the expected net value in dollars? Enter a decimal to 4 places.`,
+    answer: payout / winProbabilityDenominator - cost,
+    explanation: `Expected net value is payout x probability minus cost: ${payout}/${winProbabilityDenominator} - ${cost}.`
+  };
+}
+
+function generateCombinatoricsQuestion(
+  difficulty: Exclude<QuantDifficulty, "mixed">,
+  random: RandomNumberGenerator
+): QuantQuestion {
+  const templates =
+    difficulty === "easy"
+      ? [arrangeDistinct, chooseCommittee, noRepeatCode]
+      : difficulty === "medium"
+        ? [lineupTogether, distributeIdentical, teamExactGroup, digitNoRepeat]
+        : [lineupNotTogether, teamAtLeastOne, repeatedLetters, committeeAtLeast];
+  return templates[randomIntInclusive(0, templates.length - 1, random)]!(random);
+}
+
+function arrangeDistinct(random: RandomNumberGenerator): QuantQuestion {
+  const items = randomIntInclusive(4, 8, random);
+  return {
+    id: `comb-arrange-${items}`,
+    category: "combinatorics",
+    difficulty: "easy",
+    tags: ["combinatorics", "permutations"],
+    text: `In how many ways can ${items} distinct books be arranged on a shelf?`,
+    answer: factorial(items),
+    explanation: `Arrange ${items} distinct items: ${items}!.`
+  };
+}
+
+function chooseCommittee(random: RandomNumberGenerator): QuantQuestion {
+  const total = randomIntInclusive(7, 14, random);
+  const chosen = randomIntInclusive(2, Math.min(5, total - 2), random);
+  return {
+    id: `comb-choose-${chosen}-of-${total}`,
+    category: "combinatorics",
+    difficulty: "easy",
+    tags: ["combinatorics", "combinations"],
+    text: `From ${total} candidates, how many ${chosen}-person committees can be formed?`,
+    answer: combination(total, chosen),
+    explanation: `Order does not matter, so use C(${total},${chosen}).`
+  };
+}
+
+function noRepeatCode(random: RandomNumberGenerator): QuantQuestion {
+  const letters = randomIntInclusive(6, 10, random);
+  const length = randomIntInclusive(2, 4, random);
+  return {
+    id: `comb-code-${length}-of-${letters}`,
+    category: "combinatorics",
+    difficulty: "easy",
+    tags: ["combinatorics", "permutations"],
+    text: `How many ${length}-letter codes can be made from ${letters} distinct letters if no letter repeats?`,
+    answer: permutation(letters, length),
+    explanation: `Use ${letters}P${length}: multiply descending choices for each slot.`
+  };
+}
+
+function lineupTogether(random: RandomNumberGenerator): QuantQuestion {
+  const people = randomIntInclusive(5, 9, random);
+  return {
+    id: `comb-lineup-together-${people}`,
+    category: "combinatorics",
+    difficulty: "medium",
+    tags: ["combinatorics", "arrangements-with-restrictions"],
+    text: `${people} people line up. Two specified people must stand together. How many lineups are possible?`,
+    answer: factorial(people - 1) * 2,
+    explanation: `Treat the pair as one block: ${(people - 1)}! block arrangements times 2 internal orders.`
+  };
+}
+
+function distributeIdentical(random: RandomNumberGenerator): QuantQuestion {
+  const tokens = randomIntInclusive(6, 14, random);
+  const boxes = randomIntInclusive(3, 6, random);
+  return {
+    id: `comb-distribute-${tokens}-${boxes}`,
+    category: "combinatorics",
+    difficulty: "medium",
+    tags: ["combinatorics", "distribution-problems"],
+    text: `How many ways can ${tokens} identical tokens be distributed among ${boxes} distinct boxes if boxes may be empty?`,
+    answer: combination(tokens + boxes - 1, boxes - 1),
+    explanation: `Stars and bars gives C(${tokens}+${boxes}-1, ${boxes}-1).`
+  };
+}
+
+function teamExactGroup(random: RandomNumberGenerator): QuantQuestion {
+  const women = randomIntInclusive(5, 9, random);
+  const men = randomIntInclusive(4, 9, random);
+  const womenChosen = randomIntInclusive(1, Math.min(3, women), random);
+  const menChosen = randomIntInclusive(1, Math.min(3, men), random);
+  return {
+    id: `comb-team-exact-${womenChosen}-${menChosen}-${women}-${men}`,
+    category: "combinatorics",
+    difficulty: "medium",
+    tags: ["combinatorics", "combinations", "counting-cases"],
+    text: `From ${women} women and ${men} men, how many ${womenChosen + menChosen}-person teams contain exactly ${womenChosen} women?`,
+    answer: combination(women, womenChosen) * combination(men, menChosen),
+    explanation: `Choose ${womenChosen} women and ${menChosen} men independently.`
+  };
+}
+
+function digitNoRepeat(random: RandomNumberGenerator): QuantQuestion {
+  const length = randomIntInclusive(3, 5, random);
+  return {
+    id: `comb-digit-no-repeat-${length}`,
+    category: "combinatorics",
+    difficulty: "medium",
+    tags: ["combinatorics", "permutations", "arrangements-with-restrictions"],
+    text: `How many ${length}-digit numbers can be formed from digits 0-9 with no repeated digits?`,
+    answer: 9 * permutation(9, length - 1),
+    explanation: "The first digit cannot be 0; each later digit has one fewer available choice."
+  };
+}
+
+function lineupNotTogether(random: RandomNumberGenerator): QuantQuestion {
+  const people = randomIntInclusive(5, 9, random);
+  return {
+    id: `comb-lineup-not-together-${people}`,
+    category: "combinatorics",
+    difficulty: "hard",
+    tags: ["combinatorics", "complement-counting"],
+    text: `${people} people line up. Two specified people must not stand together. How many lineups are possible?`,
+    answer: factorial(people) - factorial(people - 1) * 2,
+    explanation: `Use total lineups minus the together case: ${people}! - 2 x ${(people - 1)}!.`
+  };
+}
+
+function teamAtLeastOne(random: RandomNumberGenerator): QuantQuestion {
+  const women = randomIntInclusive(4, 9, random);
+  const men = randomIntInclusive(5, 10, random);
+  const size = randomIntInclusive(3, Math.min(6, women + men - 1), random);
+  return {
+    id: `comb-team-at-least-one-${women}-${men}-${size}`,
+    category: "combinatorics",
+    difficulty: "hard",
+    tags: ["combinatorics", "complement-counting"],
+    text: `From ${women} women and ${men} men, how many ${size}-person teams include at least one woman?`,
+    answer: combination(women + men, size) - combination(men, size),
+    explanation: "Use complement counting: all teams minus all-men teams."
+  };
+}
+
+function repeatedLetters(random: RandomNumberGenerator): QuantQuestion {
+  const first = randomIntInclusive(2, 4, random);
+  const second = randomIntInclusive(2, 4, random);
+  const singles = randomIntInclusive(1, 3, random);
+  const total = first + second + singles;
+  return {
+    id: `comb-repeated-letters-${first}-${second}-${singles}`,
+    category: "combinatorics",
+    difficulty: "hard",
+    tags: ["combinatorics", "permutations", "repeated-items"],
+    text: `How many distinct arrangements are there of ${total} letters if one letter repeats ${first} times, another repeats ${second} times, and the remaining ${singles} letters are unique?`,
+    answer: factorial(total) / (factorial(first) * factorial(second)),
+    explanation: `Divide ${total}! by the factorials for repeated letters.`
+  };
+}
+
+function committeeAtLeast(random: RandomNumberGenerator): QuantQuestion {
+  const seniors = randomIntInclusive(4, 8, random);
+  const juniors = randomIntInclusive(5, 10, random);
+  const size = randomIntInclusive(4, 7, random);
+  const minimumSeniors = randomIntInclusive(2, Math.min(3, seniors, size), random);
+  let total = 0;
+  for (let seniorCount = minimumSeniors; seniorCount <= Math.min(size, seniors); seniorCount += 1) {
+    total += combination(seniors, seniorCount) * combination(juniors, size - seniorCount);
+  }
+  return {
+    id: `comb-committee-at-least-${minimumSeniors}-${seniors}-${juniors}-${size}`,
+    category: "combinatorics",
+    difficulty: "hard",
+    tags: ["combinatorics", "combinations", "counting-cases"],
+    text: `From ${seniors} seniors and ${juniors} juniors, how many ${size}-person committees have at least ${minimumSeniors} seniors?`,
+    answer: total,
+    explanation: `Sum cases with ${minimumSeniors} or more seniors.`
+  };
+}
+
+function countDiceSum(sum: number): number {
+  let count = 0;
+  for (let first = 1; first <= 6; first += 1) {
+    const second = sum - first;
+    if (second >= 1 && second <= 6) {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+function factorial(value: number): number {
+  let product = 1;
+  for (let factor = 2; factor <= value; factor += 1) {
+    product *= factor;
+  }
+  return product;
+}
+
+function permutation(total: number, chosen: number): number {
+  let product = 1;
+  for (let offset = 0; offset < chosen; offset += 1) {
+    product *= total - offset;
+  }
+  return product;
+}
+
+function combination(total: number, chosen: number): number {
+  if (chosen < 0 || chosen > total) {
+    return 0;
+  }
+
+  const reducedChosen = Math.min(chosen, total - chosen);
+  return permutation(total, reducedChosen) / factorial(reducedChosen);
 }

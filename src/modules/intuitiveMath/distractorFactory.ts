@@ -65,7 +65,7 @@ export function offByDistractors(answer: number): string[] {
 }
 
 export function magnitudeBucketDistractors(answer: string): string[] {
-  const match = answer.match(/^10\^(\d+)$/);
+  const match = answer.match(/^10\^(-?\d+)$/);
 
   if (!match) {
     return [];

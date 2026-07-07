@@ -37,6 +37,21 @@ describe("quant modules", () => {
     });
   });
 
+  it("generates a broad question set for repeated probability and combinatorics trials", () => {
+    const probabilityTexts = new Set<string>();
+    const combinatoricsTexts = new Set<string>();
+    const probabilityRandom = createSeededRandom(123);
+    const combinatoricsRandom = createSeededRandom(456);
+
+    for (let index = 0; index < 80; index += 1) {
+      probabilityTexts.add(getQuantQuestion("probability", "mixed", probabilityRandom).text);
+      combinatoricsTexts.add(getQuantQuestion("combinatorics", "mixed", combinatoricsRandom).text);
+    }
+
+    expect(probabilityTexts.size).toBeGreaterThanOrEqual(35);
+    expect(combinatoricsTexts.size).toBeGreaterThanOrEqual(35);
+  });
+
   it("normalizes settings without losing default category", () => {
     const settings = normalizeQuantSettings(
       { questionCount: 0, durationSeconds: 5, difficulty: "mixed" },
@@ -48,3 +63,11 @@ describe("quant modules", () => {
     expect(settings.category).toBe("probability");
   });
 });
+
+function createSeededRandom(seed: number) {
+  let state = seed;
+  return () => {
+    state = (state * 1664525 + 1013904223) % 2 ** 32;
+    return state / 2 ** 32;
+  };
+}

@@ -1,5 +1,7 @@
-import { pickCyclic } from "../distractorFactory";
+import { randomIntInclusive } from "../../../shared/utils/random";
+import { offByDistractors, pickCyclic, uniqueChoices } from "../distractorFactory";
 import type { IntuitiveMathPrompt, IntuitiveMathSession } from "../intuitiveMathTypes";
+import { formatNumber } from "../numberFormatting";
 import { generateDecimalPlacePrompt } from "./decimalPlaceGenerator";
 import { generateFractionTrapPrompt } from "./fractionTrapGenerator";
 import { generateMagnitudeSensePrompt } from "./magnitudeSenseGenerator";
@@ -9,30 +11,8 @@ import { generatePercentIntuitionPrompt } from "./percentIntuitionGenerator";
 export function generateEightyInEightMcPrompt(
   session: IntuitiveMathSession
 ): IntuitiveMathPrompt {
-  const integerArithmeticPrompts: IntuitiveMathPrompt[] = [
-    {
-      id: `eighty-mc-arithmetic-${session.promptIndex}`,
-      text: "48 x 7",
-      answer: "336",
-      choices: ["326", "335", "336", "384"],
-      explanation: "48 x 7 = 40 x 7 + 8 x 7 = 336.",
-      skillTags: ["exactArithmetic", "optionElimination"],
-      trapTags: ["offByOne"],
-      acceptsTypedAnswer: false
-    },
-    {
-      id: `eighty-mc-arithmetic-${session.promptIndex}`,
-      text: "625 / 25",
-      answer: "25",
-      choices: ["15", "20", "25", "35"],
-      explanation: "25 x 25 = 625.",
-      skillTags: ["exactArithmetic", "optionElimination"],
-      trapTags: ["wrongInverseOperation"],
-      acceptsTypedAnswer: false
-    }
-  ];
   const generators = [
-    () => pickCyclic(integerArithmeticPrompts, session.promptIndex),
+    () => generateIntegerArithmeticPrompt(session),
     generateMissingOperandPrompt,
     generateDecimalPlacePrompt,
     generateFractionTrapPrompt,
@@ -44,6 +24,29 @@ export function generateEightyInEightMcPrompt(
   return {
     ...prompt,
     id: `eighty-in-eight-mc-${session.promptIndex}`,
+    acceptsTypedAnswer: false
+  };
+}
+
+function generateIntegerArithmeticPrompt(session: IntuitiveMathSession): IntuitiveMathPrompt {
+  const form = randomIntInclusive(0, 2);
+  const left = randomIntInclusive(12, 99);
+  const right = randomIntInclusive(3, 12);
+  const answer = form === 0 ? left * right : form === 1 ? left + right : left - right;
+  const symbol = form === 0 ? "x" : form === 1 ? "+" : "-";
+  const formattedAnswer = formatNumber(answer);
+
+  return {
+    id: `eighty-mc-arithmetic-${session.promptIndex}`,
+    text: `${left} ${symbol} ${right}`,
+    answer: formattedAnswer,
+    choices: uniqueChoices(formattedAnswer, [
+      ...offByDistractors(answer),
+      formatNumber(form === 0 ? (left + right) * right : answer + 10)
+    ]),
+    explanation: `Compute ${left} ${symbol} ${right} exactly.`,
+    skillTags: ["exactArithmetic", "optionElimination"],
+    trapTags: ["offByOne"],
     acceptsTypedAnswer: false
   };
 }
