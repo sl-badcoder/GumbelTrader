@@ -973,26 +973,6 @@ select:focus-visible {
   font-weight: 800;
 }
 
-.leaderboard-player {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.leaderboard-current-badge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 20px;
-  border: 1px solid #6f5411;
-  background: #ffffff;
-  padding: 1px 6px;
-  color: #4f3a08;
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
 @media (max-width: 640px) {
   .masthead {
     display: block;

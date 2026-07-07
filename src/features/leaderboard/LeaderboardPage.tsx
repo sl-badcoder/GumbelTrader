@@ -56,10 +56,7 @@ export function LeaderboardPage() {
                 >
                   <td data-label="Rank">{entry.rank}</td>
                   <td data-label="Name">
-                    <span className="leaderboard-player">
-                      {entry.displayName}
-                      {isCurrentUser ? <span className="leaderboard-current-badge">You</span> : null}
-                    </span>
+                    {entry.displayName}
                   </td>
                   <td data-label="Best score">{entry.bestScore}</td>
                 </tr>
