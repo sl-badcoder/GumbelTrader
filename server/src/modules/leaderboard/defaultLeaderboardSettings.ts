@@ -1,6 +1,6 @@
 const defaultArithmeticSettings = {
   durationSeconds: 120,
-  enabledOperators: ["addition", "subtraction", "multiplication"],
+  enabledOperators: ["addition", "subtraction", "multiplication", "division"],
   operandRanges: {
     addition: { leftMin: 2, leftMax: 100, rightMin: 2, rightMax: 100 },
     subtraction: { leftMin: 2, leftMax: 100, rightMin: 2, rightMax: 100 },
