@@ -1,5 +1,9 @@
 import type { ChangeEvent, FormEvent } from "react";
 import type { ProblemModuleMetadata } from "../../core/engine/ProblemModule";
+import {
+  defaultCombinatoricsSettings,
+  defaultProbabilitySettings
+} from "../../modules/quant/quantSettings";
 import type { QuantDifficulty, QuantSettings } from "../../modules/quant/quantTypes";
 import { Button } from "../../shared/components/Button";
 import { NumberInput } from "../../shared/components/NumberInput";
@@ -15,6 +19,8 @@ type QuantSettingsPageProps = {
   module: ProblemModuleMetadata;
   settings: QuantSettings;
   onChange: (settings: QuantSettings) => void;
+  leaderboardMode: boolean;
+  onLeaderboardModeChange: (enabled: boolean) => void;
   onStart: (settings: QuantSettings) => void;
   onBack: () => void;
 };
@@ -23,9 +29,14 @@ export function QuantSettingsPage({
   module,
   settings,
   onChange,
+  leaderboardMode,
+  onLeaderboardModeChange,
   onStart,
   onBack
 }: QuantSettingsPageProps) {
+  const defaultSettings =
+    module.id === "combinatorics" ? defaultCombinatoricsSettings : defaultProbabilitySettings;
+  const displayedSettings = leaderboardMode ? defaultSettings : settings;
   const updateNumber =
     (key: "questionCount" | "durationSeconds") =>
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -51,7 +62,7 @@ export function QuantSettingsPage({
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onStart(settings);
+    onStart(displayedSettings);
   };
 
   return (
@@ -71,9 +82,22 @@ export function QuantSettingsPage({
           <NumberInput
             min={1}
             max={200}
-            value={settings.questionCount}
+            value={displayedSettings.questionCount}
+            disabled={leaderboardMode}
             onChange={updateNumber("questionCount")}
           />
+        </label>
+
+        <label className="checkbox-row leaderboard-mode-row">
+          <input
+            type="checkbox"
+            checked={leaderboardMode}
+            onChange={(event) => onLeaderboardModeChange(event.target.checked)}
+          />
+          <span>
+            <strong>Show my score on the leaderboard</strong>
+            <small>Uses the default settings so scores are comparable.</small>
+          </span>
         </label>
 
         <fieldset className="fieldset">
@@ -82,7 +106,8 @@ export function QuantSettingsPage({
             <label className="checkbox-row">
               <input
                 type="checkbox"
-                checked={settings.timerEnabled}
+                checked={displayedSettings.timerEnabled}
+                disabled={leaderboardMode}
                 onChange={updateBoolean("timerEnabled")}
               />
               <span>Enable countdown timer</span>
@@ -92,8 +117,8 @@ export function QuantSettingsPage({
               <NumberInput
                 min={30}
                 step={5}
-                value={settings.durationSeconds}
-                disabled={!settings.timerEnabled}
+                value={displayedSettings.durationSeconds}
+                disabled={leaderboardMode || !displayedSettings.timerEnabled}
                 onChange={updateNumber("durationSeconds")}
               />
             </label>
@@ -108,7 +133,8 @@ export function QuantSettingsPage({
                 <input
                   type="radio"
                   name={`${module.id}-difficulty`}
-                  checked={settings.difficulty === difficulty.id}
+                  checked={displayedSettings.difficulty === difficulty.id}
+                  disabled={leaderboardMode}
                   onChange={() => updateDifficulty(difficulty.id)}
                 />
                 <span>
@@ -126,7 +152,8 @@ export function QuantSettingsPage({
             <label className="checkbox-row">
               <input
                 type="checkbox"
-                checked={settings.showExplanationAfterAnswer}
+                checked={displayedSettings.showExplanationAfterAnswer}
+                disabled={leaderboardMode}
                 onChange={updateBoolean("showExplanationAfterAnswer")}
               />
               <span>Show explanation after each answer</span>
@@ -134,7 +161,8 @@ export function QuantSettingsPage({
             <label className="checkbox-row">
               <input
                 type="checkbox"
-                checked={settings.showExplanationsAtEnd}
+                checked={displayedSettings.showExplanationsAtEnd}
+                disabled={leaderboardMode}
                 onChange={updateBoolean("showExplanationsAtEnd")}
               />
               <span>Show explanations only at the end</span>
@@ -142,7 +170,8 @@ export function QuantSettingsPage({
             <label className="checkbox-row">
               <input
                 type="checkbox"
-                checked={settings.autoAdvanceOnCorrectAnswer}
+                checked={displayedSettings.autoAdvanceOnCorrectAnswer}
+                disabled={leaderboardMode}
                 onChange={updateBoolean("autoAdvanceOnCorrectAnswer")}
               />
               <span>Auto-advance after correct answer</span>
@@ -150,7 +179,8 @@ export function QuantSettingsPage({
             <label className="checkbox-row">
               <input
                 type="checkbox"
-                checked={settings.reviewMissedAfterGame}
+                checked={displayedSettings.reviewMissedAfterGame}
+                disabled={leaderboardMode}
                 onChange={updateBoolean("reviewMissedAfterGame")}
               />
               <span>Review missed questions after game</span>

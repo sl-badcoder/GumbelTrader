@@ -23,7 +23,7 @@ export function LeaderboardPage() {
       <section className="panel settings-form">
         <div className="page-heading">
           <h2>Leaderboard</h2>
-          <p>Top saved scores for each game.</p>
+          <p>Top saved scores using default settings.</p>
         </div>
         <label className="field leaderboard-select">
           <span>Game</span>

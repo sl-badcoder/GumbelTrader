@@ -5,6 +5,7 @@ import type {
   SequenceDifficulty,
   SequenceSettings
 } from "../../modules/sequences/sequenceTypes";
+import { defaultSequenceSettings } from "../../modules/sequences/sequenceSettings";
 
 const difficulties: Array<{ id: SequenceDifficulty; label: string; description: string }> = [
   { id: "easy", label: "Easy", description: "Arithmetic, geometric, Fibonacci, and prime patterns." },
@@ -15,6 +16,8 @@ const difficulties: Array<{ id: SequenceDifficulty; label: string; description: 
 type SequenceSettingsPageProps = {
   settings: SequenceSettings;
   onChange: (settings: SequenceSettings) => void;
+  leaderboardMode: boolean;
+  onLeaderboardModeChange: (enabled: boolean) => void;
   onStart: (settings: SequenceSettings) => void;
   onBack: () => void;
 };
@@ -22,9 +25,12 @@ type SequenceSettingsPageProps = {
 export function SequenceSettingsPage({
   settings,
   onChange,
+  leaderboardMode,
+  onLeaderboardModeChange,
   onStart,
   onBack
 }: SequenceSettingsPageProps) {
+  const displayedSettings = leaderboardMode ? defaultSequenceSettings : settings;
   const updateDuration = (event: ChangeEvent<HTMLInputElement>) => {
     onChange({
       ...settings,
@@ -41,7 +47,7 @@ export function SequenceSettingsPage({
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onStart(settings);
+    onStart(displayedSettings);
   };
 
   return (
@@ -61,9 +67,22 @@ export function SequenceSettingsPage({
           <NumberInput
             min={10}
             step={5}
-            value={settings.durationSeconds}
+            value={displayedSettings.durationSeconds}
+            disabled={leaderboardMode}
             onChange={updateDuration}
           />
+        </label>
+
+        <label className="checkbox-row leaderboard-mode-row">
+          <input
+            type="checkbox"
+            checked={leaderboardMode}
+            onChange={(event) => onLeaderboardModeChange(event.target.checked)}
+          />
+          <span>
+            <strong>Show my score on the leaderboard</strong>
+            <small>Uses the default settings so scores are comparable.</small>
+          </span>
         </label>
 
         <fieldset className="fieldset">
@@ -74,7 +93,8 @@ export function SequenceSettingsPage({
                 <input
                   type="radio"
                   name="sequence-difficulty"
-                  checked={settings.difficulty === difficulty.id}
+                  checked={displayedSettings.difficulty === difficulty.id}
+                  disabled={leaderboardMode}
                   onChange={() => updateDifficulty(difficulty.id)}
                 />
                 <span>

@@ -42,6 +42,10 @@ const arithmeticSettingsStorageKey = "math-practice:arithmetic-settings:v2";
 const sequenceSettingsStorageKey = "math-practice:sequence-settings";
 const probabilitySettingsStorageKey = "math-practice:probability-settings";
 const combinatoricsSettingsStorageKey = "math-practice:combinatorics-settings";
+const arithmeticLeaderboardModeStorageKey = "math-practice:arithmetic-leaderboard-mode";
+const sequenceLeaderboardModeStorageKey = "math-practice:sequence-leaderboard-mode";
+const probabilityLeaderboardModeStorageKey = "math-practice:probability-leaderboard-mode";
+const combinatoricsLeaderboardModeStorageKey = "math-practice:combinatorics-leaderboard-mode";
 
 type RestartTarget =
   | { kind: "arithmetic"; settings: ArithmeticSettings }
@@ -87,6 +91,18 @@ export default function App() {
   );
   const [combinatoricsSettings, setCombinatoricsSettings] = useState<QuantSettings>(() =>
     loadQuantSettings(storage, combinatoricsSettingsStorageKey, defaultCombinatoricsSettings)
+  );
+  const [arithmeticLeaderboardMode, setArithmeticLeaderboardMode] = useState<boolean>(() =>
+    loadBoolean(storage, arithmeticLeaderboardModeStorageKey, true)
+  );
+  const [sequenceLeaderboardMode, setSequenceLeaderboardMode] = useState<boolean>(() =>
+    loadBoolean(storage, sequenceLeaderboardModeStorageKey, true)
+  );
+  const [probabilityLeaderboardMode, setProbabilityLeaderboardMode] = useState<boolean>(() =>
+    loadBoolean(storage, probabilityLeaderboardModeStorageKey, true)
+  );
+  const [combinatoricsLeaderboardMode, setCombinatoricsLeaderboardMode] = useState<boolean>(() =>
+    loadBoolean(storage, combinatoricsLeaderboardModeStorageKey, true)
   );
   const [view, setView] = useState<AppView>({ name: "home" });
   const [selectedGameGroupId, setSelectedGameGroupId] = useState<string | null>(null);
@@ -170,6 +186,26 @@ export default function App() {
   const updateCombinatoricsSettings = (settings: QuantSettings) => {
     setCombinatoricsSettings(settings);
     storage.setItem(combinatoricsSettingsStorageKey, JSON.stringify(settings));
+  };
+
+  const updateArithmeticLeaderboardMode = (enabled: boolean) => {
+    setArithmeticLeaderboardMode(enabled);
+    storage.setItem(arithmeticLeaderboardModeStorageKey, JSON.stringify(enabled));
+  };
+
+  const updateSequenceLeaderboardMode = (enabled: boolean) => {
+    setSequenceLeaderboardMode(enabled);
+    storage.setItem(sequenceLeaderboardModeStorageKey, JSON.stringify(enabled));
+  };
+
+  const updateProbabilityLeaderboardMode = (enabled: boolean) => {
+    setProbabilityLeaderboardMode(enabled);
+    storage.setItem(probabilityLeaderboardModeStorageKey, JSON.stringify(enabled));
+  };
+
+  const updateCombinatoricsLeaderboardMode = (enabled: boolean) => {
+    setCombinatoricsLeaderboardMode(enabled);
+    storage.setItem(combinatoricsLeaderboardModeStorageKey, JSON.stringify(enabled));
   };
 
   const startArithmeticSession = (settings: ArithmeticSettings) => {
@@ -372,7 +408,11 @@ export default function App() {
         <ArithmeticSettingsPage
           settings={arithmeticSettings}
           onChange={updateArithmeticSettings}
-          onStart={startArithmeticSession}
+          leaderboardMode={arithmeticLeaderboardMode}
+          onLeaderboardModeChange={updateArithmeticLeaderboardMode}
+          onStart={(settings) =>
+            startArithmeticSession(arithmeticLeaderboardMode ? defaultArithmeticSettings : settings)
+          }
           onBack={goGames}
         />
       ) : null}
@@ -389,7 +429,11 @@ export default function App() {
         <SequenceSettingsPage
           settings={sequenceSettings}
           onChange={updateSequenceSettings}
-          onStart={startSequenceSession}
+          leaderboardMode={sequenceLeaderboardMode}
+          onLeaderboardModeChange={updateSequenceLeaderboardMode}
+          onStart={(settings) =>
+            startSequenceSession(sequenceLeaderboardMode ? defaultSequenceSettings : settings)
+          }
           onBack={goGames}
         />
       ) : null}
@@ -416,7 +460,14 @@ export default function App() {
           module={problemModules.probability}
           settings={probabilitySettings}
           onChange={updateProbabilitySettings}
-          onStart={(settings) => startQuantSession("probability", settings)}
+          leaderboardMode={probabilityLeaderboardMode}
+          onLeaderboardModeChange={updateProbabilityLeaderboardMode}
+          onStart={(settings) =>
+            startQuantSession(
+              "probability",
+              probabilityLeaderboardMode ? defaultProbabilitySettings : settings
+            )
+          }
           onBack={goGames}
         />
       ) : null}
@@ -435,7 +486,14 @@ export default function App() {
           module={problemModules.combinatorics}
           settings={combinatoricsSettings}
           onChange={updateCombinatoricsSettings}
-          onStart={(settings) => startQuantSession("combinatorics", settings)}
+          leaderboardMode={combinatoricsLeaderboardMode}
+          onLeaderboardModeChange={updateCombinatoricsLeaderboardMode}
+          onStart={(settings) =>
+            startQuantSession(
+              "combinatorics",
+              combinatoricsLeaderboardMode ? defaultCombinatoricsSettings : settings
+            )
+          }
           onBack={goGames}
         />
       ) : null}
@@ -507,5 +565,20 @@ function loadQuantSettings(
   } catch {
     storage.removeItem(storageKey);
     return defaults;
+  }
+}
+
+function loadBoolean(storage: StorageAdapter, storageKey: string, fallback: boolean): boolean {
+  const storedValue = storage.getItem(storageKey);
+
+  if (storedValue === null) {
+    return fallback;
+  }
+
+  try {
+    return Boolean(JSON.parse(storedValue));
+  } catch {
+    storage.removeItem(storageKey);
+    return fallback;
   }
 }

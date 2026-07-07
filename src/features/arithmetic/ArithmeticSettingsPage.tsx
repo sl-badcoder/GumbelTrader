@@ -6,6 +6,7 @@ import type {
   ArithmeticOperator,
   ArithmeticSettings
 } from "../../modules/arithmetic/arithmeticTypes";
+import { defaultArithmeticSettings } from "../../modules/arithmetic/arithmeticSettings";
 
 const operators: Array<{
   id: ArithmeticOperator;
@@ -52,6 +53,8 @@ const operators: Array<{
 type ArithmeticSettingsPageProps = {
   settings: ArithmeticSettings;
   onChange: (settings: ArithmeticSettings) => void;
+  leaderboardMode: boolean;
+  onLeaderboardModeChange: (enabled: boolean) => void;
   onStart: (settings: ArithmeticSettings) => void;
   onBack: () => void;
 };
@@ -59,10 +62,13 @@ type ArithmeticSettingsPageProps = {
 export function ArithmeticSettingsPage({
   settings,
   onChange,
+  leaderboardMode,
+  onLeaderboardModeChange,
   onStart,
   onBack
 }: ArithmeticSettingsPageProps) {
   const [expandedOperators, setExpandedOperators] = useState<ArithmeticOperator[]>([]);
+  const displayedSettings = leaderboardMode ? defaultArithmeticSettings : settings;
 
   const updateDuration = (event: ChangeEvent<HTMLInputElement>) => {
     onChange({
@@ -87,9 +93,9 @@ export function ArithmeticSettingsPage({
     };
 
   const toggleOperator = (operator: ArithmeticOperator) => {
-    const enabledOperators = settings.enabledOperators.includes(operator)
-      ? settings.enabledOperators.filter((item) => item !== operator)
-      : [...settings.enabledOperators, operator];
+    const enabledOperators = displayedSettings.enabledOperators.includes(operator)
+      ? displayedSettings.enabledOperators.filter((item) => item !== operator)
+      : [...displayedSettings.enabledOperators, operator];
 
     onChange({
       ...settings,
@@ -107,7 +113,7 @@ export function ArithmeticSettingsPage({
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onStart(settings);
+    onStart(displayedSettings);
   };
 
   return (
@@ -128,19 +134,32 @@ export function ArithmeticSettingsPage({
             <NumberInput
               min={5}
               step={5}
-              value={settings.durationSeconds}
+              value={displayedSettings.durationSeconds}
+              disabled={leaderboardMode}
               onChange={updateDuration}
             />
           </label>
           <p>Seconds per session. Operator rows below control which problems can appear.</p>
         </div>
 
+        <label className="checkbox-row leaderboard-mode-row">
+          <input
+            type="checkbox"
+            checked={leaderboardMode}
+            onChange={(event) => onLeaderboardModeChange(event.target.checked)}
+          />
+          <span>
+            <strong>Show my score on the leaderboard</strong>
+            <small>Uses the default settings so scores are comparable.</small>
+          </span>
+        </label>
+
         <fieldset className="fieldset">
           <legend>Operators and ranges</legend>
           <div className="operator-range-list">
             {operators.map((operator) => {
-              const range = settings.operandRanges[operator.id];
-              const isEnabled = settings.enabledOperators.includes(operator.id);
+              const range = displayedSettings.operandRanges[operator.id];
+              const isEnabled = displayedSettings.enabledOperators.includes(operator.id);
               const isExpanded = expandedOperators.includes(operator.id);
 
               return (
@@ -153,6 +172,7 @@ export function ArithmeticSettingsPage({
                       <input
                         type="checkbox"
                         checked={isEnabled}
+                        disabled={leaderboardMode}
                         onChange={() => toggleOperator(operator.id)}
                       />
                       <span>{operator.label}</span>
@@ -187,6 +207,7 @@ export function ArithmeticSettingsPage({
                             <span>Min</span>
                             <NumberInput
                               value={range.leftMin}
+                              disabled={leaderboardMode}
                               onChange={updateRange(operator.id, "leftMin")}
                             />
                           </label>
@@ -194,6 +215,7 @@ export function ArithmeticSettingsPage({
                             <span>Max</span>
                             <NumberInput
                               value={range.leftMax}
+                              disabled={leaderboardMode}
                               onChange={updateRange(operator.id, "leftMax")}
                             />
                           </label>
@@ -206,6 +228,7 @@ export function ArithmeticSettingsPage({
                             <span>Min</span>
                             <NumberInput
                               value={range.rightMin}
+                              disabled={leaderboardMode}
                               onChange={updateRange(operator.id, "rightMin")}
                             />
                           </label>
@@ -213,6 +236,7 @@ export function ArithmeticSettingsPage({
                             <span>Max</span>
                             <NumberInput
                               value={range.rightMax}
+                              disabled={leaderboardMode}
                               onChange={updateRange(operator.id, "rightMax")}
                             />
                           </label>

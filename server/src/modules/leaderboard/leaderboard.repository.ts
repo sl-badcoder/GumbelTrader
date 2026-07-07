@@ -1,4 +1,5 @@
 import type { Db } from "../../db/db.js";
+import { defaultLeaderboardSettingsByGame } from "./defaultLeaderboardSettings.js";
 import type { LeaderboardEntry } from "./leaderboard.types.js";
 
 type LeaderboardRow = {
@@ -17,6 +18,7 @@ export class PostgresLeaderboardRepository implements LeaderboardRepository {
   constructor(private readonly db: Db) {}
 
   async getForGame(gameId: string, limit: number): Promise<LeaderboardEntry[]> {
+    const defaultSettings = defaultLeaderboardSettingsByGame[gameId];
     const result = await this.db.query<LeaderboardRow>(
       `
         select distinct on (gr.user_id)
@@ -28,9 +30,10 @@ export class PostgresLeaderboardRepository implements LeaderboardRepository {
         from game_results gr
         join users u on u.id = gr.user_id
         where gr.game_id = $1
+          and ($2::jsonb is null or gr.settings_json = $2::jsonb)
         order by gr.user_id, gr.score desc, gr.accuracy desc, gr.created_at asc
       `,
-      [gameId]
+      [gameId, defaultSettings ? JSON.stringify(defaultSettings) : null]
     );
 
     return result.rows

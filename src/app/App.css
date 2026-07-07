@@ -432,6 +432,21 @@ select:focus-visible {
   margin-top: 12px;
 }
 
+.leaderboard-mode-row {
+  align-items: start;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  background: #f5f7f2;
+}
+
+.leaderboard-mode-row small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
 .field {
   display: grid;
   gap: 4px;
