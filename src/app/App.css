@@ -148,6 +148,7 @@ select:focus-visible {
 }
 
 .intro,
+.seo-section,
 .game-list,
 .panel,
 .card {
@@ -158,6 +159,34 @@ select:focus-visible {
 
 .intro {
   margin-bottom: 18px;
+}
+
+.seo-section {
+  display: grid;
+  gap: 10px;
+}
+
+.seo-section h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.seo-section p {
+  margin: 0;
+  color: #444444;
+  line-height: 1.5;
+}
+
+.seo-link-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.seo-link-list a {
+  color: #064c8f;
+  font-weight: 700;
 }
 
 .intro p + p {

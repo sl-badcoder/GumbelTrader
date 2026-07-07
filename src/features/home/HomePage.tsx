@@ -8,28 +8,29 @@ export function HomePage({ onBrowseGames }: HomePageProps) {
   return (
     <main className="page narrow-page">
       <section className="intro">
-        <h1>GumbelTrader</h1>
+        <h1>Gumbel Math</h1>
 
         <p>
-          GumbelTrader is a focused practice platform for quantitative trading
-          preparation. Train mental math, numerical speed, memory, and pattern
-          recognition through short, customizable drills.
+          Gumbel Math, also known as GumbelTrader, is a focused practice platform
+          for quantitative trading preparation. Train mental math, numerical speed,
+          memory, and pattern recognition through short, customizable drills.
         </p>
 
         <p>
-          Start with arithmetic practice, then expand into fractions, percentages,
-          sequences, memorization, and mixed challenge modes. Each session is designed
-          to be fast, measurable, and distraction-free.
+          Start with timed arithmetic practice, then expand into number sequences,
+          fractions, percentages, probability questions, combinatorics questions,
+          and mixed challenge modes. Each session is designed to be fast,
+          measurable, and distraction-free.
         </p>
 
         <p>
-          Choose a mode, configure your settings, and improve through repeated
-          practice.
+          Choose a mode, configure your settings, and practice speed and accuracy
+          through repeated drills.
         </p>
 
-        <p> 
-          We also have a discord server for the community, please join to find other trading enthusiasts and to get
-          free resources which will prepare you for your quant carreer.
+        <p>
+          The community Discord is a place to find other trading enthusiasts and
+          free resources for quantitative finance preparation.
         </p>
         <div className="intro-actions">
           <Button onClick={onBrowseGames}>Browse games</Button>
@@ -50,6 +51,34 @@ export function HomePage({ onBrowseGames }: HomePageProps) {
             Join Discord
           </a>
         </div>
+      </section>
+
+      <section className="seo-section" aria-labelledby="practice-topics">
+        <h2 id="practice-topics">Practice Topics</h2>
+        <p>
+          Explore focused pages for the main Gumbel Math drills. Each page explains
+          the format before you start a timed session.
+        </p>
+        <ul className="seo-link-list">
+          <li>
+            <a href="/arithmetic-practice/">Timed arithmetic practice</a>
+          </li>
+          <li>
+            <a href="/sequence-practice/">Number sequence practice</a>
+          </li>
+          <li>
+            <a href="/probability-practice/">Probability practice questions</a>
+          </li>
+          <li>
+            <a href="/combinatorics-practice/">Combinatorics practice questions</a>
+          </li>
+          <li>
+            <a href="/80-questions-8-minutes/">80 questions in 8 minutes math</a>
+          </li>
+          <li>
+            <a href="/leaderboard/">Fair default-setting leaderboard</a>
+          </li>
+        </ul>
       </section>
     </main>
   );

@@ -1,0 +1,144 @@
+:root {
+  color: #222222;
+  background: #eeeeea;
+  font-family: Georgia, "Times New Roman", serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+a {
+  color: #064c8f;
+  font-weight: 700;
+}
+
+a:focus-visible {
+  outline: 3px solid #8aa7c7;
+  outline-offset: 2px;
+}
+
+.site-header {
+  border-bottom: 1px solid #999999;
+  background: #f7f7f2;
+}
+
+.masthead,
+.top-nav,
+main {
+  width: min(880px, calc(100% - 28px));
+  margin: 0 auto;
+}
+
+.masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 0 10px;
+}
+
+.brand {
+  color: #222222;
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.masthead p {
+  margin: 0;
+  color: #555555;
+  font-size: 0.95rem;
+}
+
+.top-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border-top: 1px solid #c8c8bf;
+}
+
+.top-nav a {
+  border-right: 1px solid #b4b4aa;
+  padding: 7px 12px;
+  color: #222222;
+  text-decoration: none;
+}
+
+.top-nav a:first-child {
+  border-left: 1px solid #b4b4aa;
+}
+
+.top-nav a:hover {
+  background: #fbfbf7;
+  color: #064c8f;
+}
+
+main {
+  margin-top: 26px;
+  margin-bottom: 48px;
+}
+
+.panel {
+  border: 1px solid #aaaaaa;
+  background: #fbfbf7;
+  padding: 18px;
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+}
+
+h2 {
+  margin: 24px 0 8px;
+  font-size: 1.25rem;
+}
+
+p,
+li {
+  line-height: 1.55;
+}
+
+.lead {
+  color: #333333;
+  font-size: 1.08rem;
+}
+
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.button-link {
+  min-height: 38px;
+  border: 1px solid #8c8c82;
+  border-radius: 4px;
+  padding: 8px 14px;
+  color: #222222;
+  background: #e8e8df;
+  text-decoration: none;
+}
+
+.related-list {
+  display: grid;
+  gap: 8px;
+  padding-left: 1.25rem;
+}
+
+.breadcrumb {
+  margin: 0 0 14px;
+  color: #5f625b;
+  font-size: 0.92rem;
+}
