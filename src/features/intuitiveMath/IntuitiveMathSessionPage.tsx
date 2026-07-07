@@ -215,6 +215,7 @@ function LoadedIntuitiveMathSessionPage({
           feedbackTone={
             practice.lastResult ? (practice.lastResult.isCorrect ? "success" : "error") : null
           }
+          answerInputMode={settings.acceptsTypedAnswer ? "text" : "numeric"}
           onAnswerChange={practice.setAnswer}
           onSubmit={practice.submitAnswer}
         />

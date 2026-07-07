@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { generateSequencePrompt, getSequencePatternIds } from "./generateSequencePrompt";
 import { sequenceModule } from "./sequenceModule";
+import { sequencePatterns } from "./sequencePatterns";
 import { validateSequenceAnswer } from "./validateSequenceAnswer";
 
 describe("sequenceModule", () => {
@@ -41,5 +42,21 @@ describe("sequenceModule", () => {
       isCorrect: false,
       message: "Enter a number."
     });
+  });
+
+  it("adds hints to sparse interwoven or distractor sequence patterns", () => {
+    const hintedPatternIds = [
+      "arithmetic-with-distractors",
+      "interwoven-arithmetic-geometric",
+      "paired-interwoven-sequences"
+    ];
+
+    for (const patternId of hintedPatternIds) {
+      const pattern = sequencePatterns.find((candidate) => candidate.id === patternId);
+      const generated = pattern?.generate(() => 0);
+
+      expect(generated?.hint).toBeTruthy();
+      expect(generated?.hint?.length).toBeGreaterThan(10);
+    }
   });
 });

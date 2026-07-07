@@ -44,8 +44,8 @@ export function validateIntuitiveMathAnswer(
 
   if (fractionAnswer && expectedFraction) {
     const isCorrect =
-      fractionAnswer.numerator === expectedFraction.numerator &&
-      fractionAnswer.denominator === expectedFraction.denominator;
+      fractionAnswer.numerator * expectedFraction.denominator ===
+      expectedFraction.numerator * fractionAnswer.denominator;
     return {
       isCorrect,
       expectedAnswer,

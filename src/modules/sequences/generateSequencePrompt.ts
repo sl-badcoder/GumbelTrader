@@ -45,7 +45,8 @@ function toPrompt(generated: GeneratedSequence): SequencePrompt {
     answer,
     patternId: generated.patternId,
     difficulty: generated.difficulty,
-    text: `${values.join(", ")}, ?`
+    hint: generated.hint,
+    text: generated.hint ? `${values.join(", ")}, ? Hint: ${generated.hint}` : `${values.join(", ")}, ?`
   };
 }
 

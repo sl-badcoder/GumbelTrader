@@ -31,6 +31,7 @@ describe("quant modules", () => {
     };
 
     expect(validateQuantAnswer(prompt, "1/9").isCorrect).toBe(true);
+    expect(validateQuantAnswer(prompt, "1 / 9").isCorrect).toBe(true);
     expect(validateQuantAnswer(prompt, "4/36")).toMatchObject({
       isCorrect: false,
       message: "Reduce the fraction to 1/9"

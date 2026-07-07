@@ -16,6 +16,7 @@ type PracticeSessionViewProps<TPrompt extends { text: string; choices?: string[]
   feedback: string | null;
   feedbackTone?: "success" | "error" | null;
   promptClassName?: string;
+  answerInputMode?: "numeric" | "text";
   onAnswerChange: (answer: string) => void;
   onSubmit: () => void;
 };
@@ -33,6 +34,7 @@ export function PracticeSessionView<TPrompt extends { text: string; choices?: st
   feedback,
   feedbackTone = null,
   promptClassName = "",
+  answerInputMode = "numeric",
   onAnswerChange,
   onSubmit
 }: PracticeSessionViewProps<TPrompt>) {
@@ -126,13 +128,25 @@ export function PracticeSessionView<TPrompt extends { text: string; choices?: st
           </div>
         ) : (
           <div className="answer-row">
-            <NumberInput
-              ref={inputRef}
-              aria-label="Answer"
-              value={answer}
-              disabled={isEnded}
-              onChange={(event) => onAnswerChange(event.target.value)}
-            />
+            {answerInputMode === "text" ? (
+              <input
+                ref={inputRef}
+                className="number-input"
+                aria-label="Answer"
+                inputMode="text"
+                value={answer}
+                disabled={isEnded}
+                onChange={(event) => onAnswerChange(event.target.value)}
+              />
+            ) : (
+              <NumberInput
+                ref={inputRef}
+                aria-label="Answer"
+                value={answer}
+                disabled={isEnded}
+                onChange={(event) => onAnswerChange(event.target.value)}
+              />
+            )}
             <Button className="quiz-action-button is-primary" disabled={isEnded} type="submit">
               Submit
             </Button>

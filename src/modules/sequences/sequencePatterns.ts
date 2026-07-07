@@ -126,7 +126,7 @@ export const sequencePatterns: SequencePattern[] = [
         distractor,
         valueAt(main, 2),
         valueAt(main, 3)
-      ]);
+      ], "Ignore the repeated distractor term.");
     }
   },
   {
@@ -213,7 +213,7 @@ export const sequencePatterns: SequencePattern[] = [
         valueAt(geometric, 1),
         valueAt(arithmetic, 2),
         valueAt(geometric, 2)
-      ]);
+      ], "Odd and even positions follow separate rules.");
     }
   },
   {
@@ -229,7 +229,7 @@ export const sequencePatterns: SequencePattern[] = [
         valueAt(fibonacci, 1),
         valueAt(arithmetic, 2),
         valueAt(arithmetic, 3)
-      ]);
+      ], "Read terms in pairs and compare positions.");
     }
   },
   {
@@ -457,12 +457,14 @@ function valueAt(values: number[], index: number): number {
 function toGeneratedSequence(
   patternId: string,
   difficulty: SequenceDifficulty,
-  values: number[]
+  values: number[],
+  hint?: string
 ): GeneratedSequence {
   const sequence = values.map(Math.trunc);
   return {
     patternId,
     difficulty,
+    hint,
     values: [
       sequence[0] ?? 0,
       sequence[1] ?? 0,

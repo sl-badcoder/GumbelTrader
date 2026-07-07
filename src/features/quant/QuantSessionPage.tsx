@@ -111,6 +111,7 @@ export function QuantSessionPage({
           practice.lastResult ? (practice.lastResult.isCorrect ? "success" : "error") : null
         }
         promptClassName="quant-prompt"
+        answerInputMode={practice.prompt.category === "probability" ? "text" : "numeric"}
         onAnswerChange={practice.setAnswer}
         onSubmit={practice.submitAnswer}
       />

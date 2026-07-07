@@ -1,8 +1,11 @@
-import { randomIntInclusive } from "../../../shared/utils/random";
+import { randomIntInclusive, type RandomNumberGenerator } from "../../../shared/utils/random";
 import { uniqueChoices } from "../distractorFactory";
 import type { IntuitiveMathPrompt, IntuitiveMathSession } from "../intuitiveMathTypes";
 
-export function generateFermiPrompt(session: IntuitiveMathSession): IntuitiveMathPrompt {
+export function generateFermiPrompt(
+  session: IntuitiveMathSession,
+  random?: RandomNumberGenerator
+): IntuitiveMathPrompt {
   const cases = [
     {
       text: "About how many minutes are in a year?",
@@ -53,13 +56,18 @@ export function generateFermiPrompt(session: IntuitiveMathSession): IntuitiveMat
       explanation: "Revenue is driven mainly by member count times average fee."
     }
   ];
-  const promptCase = cases[randomIntInclusive(0, cases.length - 1)] ?? cases[0]!;
+  const promptCase = cases[randomIntInclusive(0, cases.length - 1, random)] ?? cases[0]!;
 
   return {
     id: `fermi-estimation-${session.promptIndex}`,
     text: promptCase.text,
     answer: promptCase.answer,
-    choices: uniqueChoices(promptCase.answer, promptCase.choices.filter((choice) => choice !== promptCase.answer)),
+    choices: uniqueChoices(
+      promptCase.answer,
+      promptCase.choices.filter((choice) => choice !== promptCase.answer),
+      4,
+      random
+    ),
     explanation: promptCase.explanation,
     skillTags: ["fermiEstimation", "magnitudeSense", "optionElimination"],
     trapTags: ["magnitudeError"],

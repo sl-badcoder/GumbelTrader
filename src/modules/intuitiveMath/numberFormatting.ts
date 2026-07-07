@@ -50,7 +50,7 @@ export function formatPercent(value: number): string {
 
 export function parseFractionAnswer(value: string): Fraction | null {
   const trimmed = value.trim();
-  const match = trimmed.match(/^(-?\d+)\/(-?\d+)$/);
+  const match = trimmed.match(/^(-?\d+)\s*\/\s*(-?\d+)$/);
 
   if (!match) {
     return null;

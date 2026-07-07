@@ -1,5 +1,5 @@
 import { randomIntInclusive, type RandomNumberGenerator } from "../../shared/utils/random";
-import { formatNumber } from "./numberFormatting";
+import { formatFraction, formatNumber, type Fraction } from "./numberFormatting";
 
 export function shuffle<T>(
   values: T[],
@@ -46,7 +46,7 @@ export function uniqueChoices(
 
   let fillerOffset = 1;
   while (choices.length < count) {
-    const filler = `${answer} ${fillerOffset > 0 ? "+" : ""}${fillerOffset}`;
+    const filler = buildFallbackChoice(answer, fillerOffset);
     if (!choices.includes(filler)) {
       choices.push(filler);
     }
@@ -54,6 +54,48 @@ export function uniqueChoices(
   }
 
   return shuffle(choices.slice(0, count), random);
+}
+
+function buildFallbackChoice(answer: string, offset: number): string {
+  const numericAnswer = Number(answer);
+  if (!Number.isNaN(numericAnswer)) {
+    return formatNumber(numericAnswer + offset);
+  }
+
+  const percentMatch = answer.match(/^(-?\d+(?:\.\d+)?)%$/);
+  if (percentMatch) {
+    return `${formatNumber(Number(percentMatch[1]) + offset)}%`;
+  }
+
+  const powerMatch = answer.match(/^10\^(-?\d+)$/);
+  if (powerMatch) {
+    return `10^${Number(powerMatch[1]) + offset}`;
+  }
+
+  const fraction = parseDisplayFraction(answer);
+  if (fraction) {
+    return formatFraction({
+      numerator: fraction.numerator + offset,
+      denominator: fraction.denominator
+    });
+  }
+
+  return `${answer}-${offset}`;
+}
+
+function parseDisplayFraction(value: string): Fraction | null {
+  const match = value.match(/^(-?\d+)\/(\d+)$/);
+  if (!match) {
+    return null;
+  }
+
+  const numerator = Number(match[1]);
+  const denominator = Number(match[2]);
+  if (!Number.isInteger(numerator) || !Number.isInteger(denominator) || denominator <= 0) {
+    return null;
+  }
+
+  return { numerator, denominator };
 }
 
 export function decimalShiftDistractors(answer: number): string[] {

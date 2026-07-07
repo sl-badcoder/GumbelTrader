@@ -17,10 +17,12 @@ export type SequencePrompt = {
   text: string;
   patternId: string;
   difficulty: SequenceDifficulty;
+  hint?: string;
 };
 
 export type GeneratedSequence = {
   values: [number, number, number, number, number, number];
   patternId: string;
   difficulty: SequenceDifficulty;
+  hint?: string;
 };

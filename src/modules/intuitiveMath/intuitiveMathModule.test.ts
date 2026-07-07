@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { decimalShiftDistractors } from "./distractorFactory";
+import { decimalShiftDistractors, uniqueChoices } from "./distractorFactory";
 import { generateDecimalPlacePrompt } from "./generators/decimalPlaceGenerator";
 import { generateFermiPrompt } from "./generators/fermiGenerator";
 import { generateFractionTrapPrompt } from "./generators/fractionTrapGenerator";
@@ -11,6 +11,7 @@ import {
 import { generateStrategyRecognitionPrompt } from "./generators/strategyRecognitionGenerator";
 import type { IntuitiveMathPrompt, IntuitiveMathSession } from "./intuitiveMathTypes";
 import { intuitiveMathModules } from "./modules";
+import { validateIntuitiveMathAnswer } from "./validateIntuitiveMathAnswer";
 
 function makeSession(promptIndex = 0, acceptsTypedAnswer = false): IntuitiveMathSession {
   return {
@@ -88,11 +89,14 @@ describe("intuitive math generators", () => {
     expect(solveReversePercentage(24, 12.5)).toBe(192);
   });
 
-  it("Fermi questions use order-of-magnitude choices", () => {
-    const prompt = generateFermiPrompt(makeSession(0));
+  it("Fermi questions use coherent order-of-magnitude or conceptual choices", () => {
+    const magnitudePrompt = generateFermiPrompt(makeSession(0), () => 0);
+    const conceptualPrompt = generateFermiPrompt(makeSession(1), () => 0.2);
 
-    expectValidChoices(prompt);
-    expect(prompt.choices?.every((choice) => choice.startsWith("10^"))).toBe(true);
+    expectValidChoices(magnitudePrompt);
+    expectValidChoices(conceptualPrompt);
+    expect(magnitudePrompt.choices?.every((choice) => choice.startsWith("10^"))).toBe(true);
+    expect(conceptualPrompt.choices).toContain(conceptualPrompt.answer);
   });
 
   it("strategy recognition questions are conceptual multiple choice", () => {
@@ -148,5 +152,30 @@ describe("intuitive math generators", () => {
 
     expect(module.defaultSettings.acceptsTypedAnswer).toBe(true);
     expect(prompt.choices).toBeUndefined();
+  });
+
+  it("typed fraction answers accept equivalent forms", () => {
+    const prompt: IntuitiveMathPrompt = {
+      id: "fraction-equivalence",
+      text: "What is 1/2?",
+      answer: "1/2",
+      acceptsTypedAnswer: true
+    };
+
+    expect(validateIntuitiveMathAnswer(prompt, "2 / 4")).toMatchObject({
+      isCorrect: true,
+      expectedAnswer: "1/2"
+    });
+  });
+
+  it("fallback choices are type-aware and avoid expression labels", () => {
+    for (const answer of ["3/4", "96%", "10^5", "12"]) {
+      const choices = uniqueChoices(answer, [answer, answer], 4, () => 0);
+
+      expect(choices).toHaveLength(4);
+      expect(new Set(choices).size).toBe(4);
+      expect(choices).toContain(answer);
+      expect(choices.every((choice) => !choice.includes(" +"))).toBe(true);
+    }
   });
 });

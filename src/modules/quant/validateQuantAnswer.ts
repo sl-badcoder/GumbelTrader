@@ -67,7 +67,7 @@ function validateProbabilityFraction(prompt: QuantPrompt, trimmedAnswer: string)
 }
 
 function parseFraction(value: string): { numerator: number; denominator: number } | null {
-  const match = value.match(/^(-?\d+)\/(\d+)$/);
+  const match = value.match(/^(-?\d+)\s*\/\s*(\d+)$/);
   if (!match) {
     return null;
   }
