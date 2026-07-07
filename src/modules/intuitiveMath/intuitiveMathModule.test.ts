@@ -120,6 +120,7 @@ describe("intuitive math generators", () => {
     for (let index = 0; index < 80; index += 1) {
       const prompt = module.generatePrompt({ ...session, promptIndex: index });
       expectValidChoices(prompt);
+      expect(prompt.text.toLowerCase()).not.toMatch(/closest|bucket|order/);
       questionTexts.add(prompt.text);
     }
     expect(questionTexts.size).toBeGreaterThanOrEqual(60);

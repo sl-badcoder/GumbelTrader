@@ -4,9 +4,7 @@ import type { IntuitiveMathPrompt, IntuitiveMathSession } from "../intuitiveMath
 import { formatNumber } from "../numberFormatting";
 import { generateDecimalPlacePrompt } from "./decimalPlaceGenerator";
 import { generateFractionTrapPrompt } from "./fractionTrapGenerator";
-import { generateMagnitudeSensePrompt } from "./magnitudeSenseGenerator";
 import { generateMissingOperandPrompt } from "./missingOperandGenerator";
-import { generatePercentIntuitionPrompt } from "./percentIntuitionGenerator";
 
 export function generateEightyInEightMcPrompt(
   session: IntuitiveMathSession
@@ -16,9 +14,7 @@ export function generateEightyInEightMcPrompt(
     () => generateIntegerArithmeticPrompt(session, random),
     generateMissingOperandPrompt,
     generateDecimalPlacePrompt,
-    generateFractionTrapPrompt,
-    generateMagnitudeSensePrompt,
-    generatePercentIntuitionPrompt
+    generateFractionTrapPrompt
   ];
   const generator = generators[randomIntInclusive(0, generators.length - 1, random)] ?? generators[0]!;
   const prompt = generator(session, random);
