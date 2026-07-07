@@ -9,7 +9,7 @@ import { LoginPage } from "../features/auth/LoginPage";
 import { RegisterPage } from "../features/auth/RegisterPage";
 import { useAuth } from "../features/auth/AuthContext";
 import { GamesPage } from "../features/home/GamesPage";
-import { HomePage } from "../features/home/HomePage";
+import { HomePage, type PracticeTopic } from "../features/home/HomePage";
 import { IntuitiveMathSessionPage } from "../features/intuitiveMath/IntuitiveMathSessionPage";
 import { LeaderboardPage } from "../features/leaderboard/LeaderboardPage";
 import { QuantSessionPage } from "../features/quant/QuantSessionPage";
@@ -260,6 +260,37 @@ export default function App() {
 
   const goHome = () => navigate({ name: "home" }, null);
   const goGames = () => navigate({ name: "games" }, null);
+  const openPracticeTopic = (topic: PracticeTopic) => {
+    if (topic === "arithmetic") {
+      navigate({ name: "arithmetic-settings" }, null);
+      return;
+    }
+
+    if (topic === "sequences") {
+      navigate({ name: "sequence-settings" }, null);
+      return;
+    }
+
+    if (topic === "probability") {
+      navigate({ name: "probability-settings" }, null);
+      return;
+    }
+
+    if (topic === "combinatorics") {
+      navigate({ name: "combinatorics-settings" }, null);
+      return;
+    }
+
+    if (topic === "eightyInEight") {
+      navigate(
+        { name: "intuitive-math-session", moduleId: problemModules.eightyInEightMc.id },
+        null
+      );
+      return;
+    }
+
+    navigate({ name: "leaderboard" }, null);
+  };
   const completeSession = (result: PracticeResult, restartTarget: RestartTarget) => {
     setSaveMessage(auth.user ? "Saving result..." : "Log in to save your progress.");
     navigate({ name: "results", result, restartTarget });
@@ -356,7 +387,7 @@ export default function App() {
         </nav>
       </header>
       {view.name === "home" ? (
-        <HomePage onBrowseGames={goGames} />
+        <HomePage onBrowseGames={goGames} onOpenPracticeTopic={openPracticeTopic} />
       ) : null}
       {view.name === "games" ? (
         <GamesPage

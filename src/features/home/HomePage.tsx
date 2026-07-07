@@ -1,10 +1,56 @@
 import { Button } from "../../shared/components/Button";
 
+export type PracticeTopic =
+  | "arithmetic"
+  | "sequences"
+  | "probability"
+  | "combinatorics"
+  | "eightyInEight"
+  | "leaderboard";
+
 type HomePageProps = {
   onBrowseGames: () => void;
+  onOpenPracticeTopic: (topic: PracticeTopic) => void;
 };
 
-export function HomePage({ onBrowseGames }: HomePageProps) {
+const practiceTopicLinks: Array<{
+  topic: PracticeTopic;
+  href: string;
+  label: string;
+}> = [
+  {
+    topic: "arithmetic",
+    href: "/arithmetic-practice/",
+    label: "Timed arithmetic practice"
+  },
+  {
+    topic: "sequences",
+    href: "/sequence-practice/",
+    label: "Number sequence practice"
+  },
+  {
+    topic: "probability",
+    href: "/probability-practice/",
+    label: "Probability practice questions"
+  },
+  {
+    topic: "combinatorics",
+    href: "/combinatorics-practice/",
+    label: "Combinatorics practice questions"
+  },
+  {
+    topic: "eightyInEight",
+    href: "/80-questions-8-minutes/",
+    label: "80 questions in 8 minutes math"
+  },
+  {
+    topic: "leaderboard",
+    href: "/leaderboard/",
+    label: "Fair default-setting leaderboard"
+  }
+];
+
+export function HomePage({ onBrowseGames, onOpenPracticeTopic }: HomePageProps) {
   return (
     <main className="page narrow-page">
       <section className="intro">
@@ -60,24 +106,19 @@ export function HomePage({ onBrowseGames }: HomePageProps) {
           the format before you start a timed session.
         </p>
         <ul className="seo-link-list">
-          <li>
-            <a href="/arithmetic-practice/">Timed arithmetic practice</a>
-          </li>
-          <li>
-            <a href="/sequence-practice/">Number sequence practice</a>
-          </li>
-          <li>
-            <a href="/probability-practice/">Probability practice questions</a>
-          </li>
-          <li>
-            <a href="/combinatorics-practice/">Combinatorics practice questions</a>
-          </li>
-          <li>
-            <a href="/80-questions-8-minutes/">80 questions in 8 minutes math</a>
-          </li>
-          <li>
-            <a href="/leaderboard/">Fair default-setting leaderboard</a>
-          </li>
+          {practiceTopicLinks.map((link) => (
+            <li key={link.topic}>
+              <a
+                href={link.href}
+                onClick={(event) => {
+                  event.preventDefault();
+                  onOpenPracticeTopic(link.topic);
+                }}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
         </ul>
       </section>
     </main>
