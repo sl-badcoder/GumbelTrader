@@ -24,7 +24,8 @@ function makeSession(promptIndex = 0, acceptsTypedAnswer = false): IntuitiveMath
     attempts: 0,
     correct: 0,
     startedAt: 0,
-    promptIndex
+    promptIndex,
+    randomSeed: 12345
   };
 }
 
@@ -118,6 +119,27 @@ describe("intuitive math generators", () => {
       questionTexts.add(prompt.text);
     }
     expect(questionTexts.size).toBeGreaterThanOrEqual(60);
+  });
+
+  it("80-in-8 MC changes questions between trials", () => {
+    const module = intuitiveMathModules.eightyInEightMc;
+    const firstSession = {
+      ...module.createSession(module.defaultSettings),
+      randomSeed: 111
+    };
+    const secondSession = {
+      ...module.createSession(module.defaultSettings),
+      randomSeed: 222
+    };
+    const firstTrialTexts = Array.from({ length: 20 }, (_, index) =>
+      module.generatePrompt({ ...firstSession, promptIndex: index }).text
+    );
+    const secondTrialTexts = Array.from({ length: 20 }, (_, index) =>
+      module.generatePrompt({ ...secondSession, promptIndex: index }).text
+    );
+
+    expect(secondTrialTexts).not.toEqual(firstTrialTexts);
+    expect(new Set([...firstTrialTexts, ...secondTrialTexts]).size).toBeGreaterThan(25);
   });
 
   it("typed hardcore mode has no choices", () => {

@@ -1,5 +1,5 @@
-import { randomIntInclusive } from "../../../shared/utils/random";
-import { offByDistractors, pickCyclic, uniqueChoices } from "../distractorFactory";
+import { createSeededRandom, mixSeed, randomIntInclusive, type RandomNumberGenerator } from "../../../shared/utils/random";
+import { offByDistractors, uniqueChoices } from "../distractorFactory";
 import type { IntuitiveMathPrompt, IntuitiveMathSession } from "../intuitiveMathTypes";
 import { formatNumber } from "../numberFormatting";
 import { generateDecimalPlacePrompt } from "./decimalPlaceGenerator";
@@ -11,15 +11,17 @@ import { generatePercentIntuitionPrompt } from "./percentIntuitionGenerator";
 export function generateEightyInEightMcPrompt(
   session: IntuitiveMathSession
 ): IntuitiveMathPrompt {
+  const random = createSeededRandom(mixSeed(session.randomSeed, session.promptIndex));
   const generators = [
-    () => generateIntegerArithmeticPrompt(session),
+    () => generateIntegerArithmeticPrompt(session, random),
     generateMissingOperandPrompt,
     generateDecimalPlacePrompt,
     generateFractionTrapPrompt,
     generateMagnitudeSensePrompt,
     generatePercentIntuitionPrompt
   ];
-  const prompt = pickCyclic(generators, session.promptIndex)(session);
+  const generator = generators[randomIntInclusive(0, generators.length - 1, random)] ?? generators[0]!;
+  const prompt = generator(session, random);
 
   return {
     ...prompt,
@@ -28,10 +30,13 @@ export function generateEightyInEightMcPrompt(
   };
 }
 
-function generateIntegerArithmeticPrompt(session: IntuitiveMathSession): IntuitiveMathPrompt {
-  const form = randomIntInclusive(0, 2);
-  const left = randomIntInclusive(12, 99);
-  const right = randomIntInclusive(3, 12);
+function generateIntegerArithmeticPrompt(
+  session: IntuitiveMathSession,
+  random: RandomNumberGenerator
+): IntuitiveMathPrompt {
+  const form = randomIntInclusive(0, 2, random);
+  const left = randomIntInclusive(12, 99, random);
+  const right = randomIntInclusive(3, 12, random);
   const answer = form === 0 ? left * right : form === 1 ? left + right : left - right;
   const symbol = form === 0 ? "x" : form === 1 ? "+" : "-";
   const formattedAnswer = formatNumber(answer);

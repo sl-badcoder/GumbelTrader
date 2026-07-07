@@ -88,7 +88,7 @@ export function QuantSessionPage({
         <div>
           <h2>{module.title}</h2>
           <p>
-            Answer numerically. Decimal probability answers accept a small rounding tolerance.
+            Probability answers use reduced fractions like 3/8. Combinatorics answers use integers.
           </p>
         </div>
         <Button className="secondary-button" onClick={onBack}>

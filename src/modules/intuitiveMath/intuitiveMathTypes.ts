@@ -50,6 +50,7 @@ export type IntuitiveMathSettings = {
 export type IntuitiveMathSession = PracticeSession & {
   settings: IntuitiveMathSettings;
   promptIndex: number;
+  randomSeed: number;
 };
 
 export type IntuitiveMathGenerator = (

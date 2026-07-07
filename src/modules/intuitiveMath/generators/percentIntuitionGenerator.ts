@@ -1,12 +1,13 @@
-import { randomIntInclusive } from "../../../shared/utils/random";
+import { randomIntInclusive, type RandomNumberGenerator } from "../../../shared/utils/random";
 import { uniqueChoices } from "../distractorFactory";
 import type { IntuitiveMathPrompt, IntuitiveMathSession } from "../intuitiveMathTypes";
 import { formatNumber, formatPercent } from "../numberFormatting";
 
 export function generatePercentIntuitionPrompt(
-  session: IntuitiveMathSession
+  session: IntuitiveMathSession,
+  random?: RandomNumberGenerator
 ): IntuitiveMathPrompt {
-  const promptCase = buildPercentIntuitionCase();
+  const promptCase = buildPercentIntuitionCase(random);
 
   return {
     id: `percent-intuition-${session.promptIndex}`,
@@ -20,8 +21,8 @@ export function generatePercentIntuitionPrompt(
   };
 }
 
-function buildPercentIntuitionCase() {
-  const form = randomIntInclusive(0, 3);
+function buildPercentIntuitionCase(random?: RandomNumberGenerator) {
+  const form = randomIntInclusive(0, 3, random);
   const commonPercents = [
     { percent: 12.5, denominator: 8 },
     { percent: 20, denominator: 5 },
@@ -30,11 +31,11 @@ function buildPercentIntuitionCase() {
     { percent: 50, denominator: 2 },
     { percent: 75, denominator: 4, numerator: 3 }
   ];
-  const item = commonPercents[randomIntInclusive(0, commonPercents.length - 1)] ?? commonPercents[0]!;
+  const item = commonPercents[randomIntInclusive(0, commonPercents.length - 1, random)] ?? commonPercents[0]!;
   const numerator = item.numerator ?? 1;
 
   if (form === 0) {
-    const value = item.denominator * randomIntInclusive(6, 30);
+    const value = item.denominator * randomIntInclusive(6, 30, random);
     const answer = (value / item.denominator) * numerator;
     return {
       text: `${item.percent}% of ${value}`,
@@ -47,7 +48,7 @@ function buildPercentIntuitionCase() {
   }
 
   if (form === 1) {
-    const original = item.denominator * randomIntInclusive(8, 28);
+    const original = item.denominator * randomIntInclusive(8, 28, random);
     const finalValue = (original / item.denominator) * numerator;
     return {
       text: `${formatNumber(finalValue)} is ${item.percent}% of what?`,
@@ -60,7 +61,7 @@ function buildPercentIntuitionCase() {
   }
 
   if (form === 2) {
-    const change = [10, 20, 25, 50][randomIntInclusive(0, 3)] ?? 20;
+    const change = [10, 20, 25, 50][randomIntInclusive(0, 3, random)] ?? 20;
     const answer = solvePercentChain(100, [change, -change]);
     return {
       text: `After +${change}% and then -${change}%, what percentage of the original remains?`,
@@ -72,7 +73,7 @@ function buildPercentIntuitionCase() {
     };
   }
 
-  const base = item.denominator * randomIntInclusive(8, 40);
+  const base = item.denominator * randomIntInclusive(8, 40, random);
   const answer = (base / item.denominator) * numerator;
   return {
     text: `${item.percent}% of ${base} is closest to`,

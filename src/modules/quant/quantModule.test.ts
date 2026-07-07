@@ -21,20 +21,37 @@ describe("quant modules", () => {
     expect(prompt.tags).toContain("combinatorics");
   });
 
-  it("validates rounded decimal probability answers", () => {
+  it("validates reduced fraction probability answers", () => {
     const question = getQuantQuestion("probability", "easy", () => 0);
     const prompt = {
       ...question,
-      answer: 0.1111,
-      expectedAnswer: "0.1111"
+      answer: 1 / 9,
+      answerFraction: { numerator: 1, denominator: 9 },
+      expectedAnswer: "1/9"
     };
 
-    expect(validateQuantAnswer(prompt, "0.1111").isCorrect).toBe(true);
-    expect(validateQuantAnswer(prompt, "0.1112").isCorrect).toBe(true);
-    expect(validateQuantAnswer(prompt, "0.12")).toMatchObject({
+    expect(validateQuantAnswer(prompt, "1/9").isCorrect).toBe(true);
+    expect(validateQuantAnswer(prompt, "4/36")).toMatchObject({
       isCorrect: false,
-      expectedAnswer: "0.1111"
+      message: "Reduce the fraction to 1/9"
     });
+    expect(validateQuantAnswer(prompt, "0.1111")).toMatchObject({
+      isCorrect: false,
+      expectedAnswer: "1/9"
+    });
+  });
+
+  it("generates probability answers as reduced fractions", () => {
+    const random = createSeededRandom(789);
+
+    for (let index = 0; index < 100; index += 1) {
+      const question = getQuantQuestion("probability", "mixed", random);
+
+      expect(question.answerFraction).toBeDefined();
+      expect(gcd(question.answerFraction!.numerator, question.answerFraction!.denominator)).toBe(1);
+      expect(question.text).toContain("reduced fraction");
+      expect(question.tags).not.toContain("expected-value");
+    }
   });
 
   it("generates a broad question set for repeated probability and combinatorics trials", () => {
@@ -70,4 +87,13 @@ function createSeededRandom(seed: number) {
     state = (state * 1664525 + 1013904223) % 2 ** 32;
     return state / 2 ** 32;
   };
+}
+
+function gcd(left: number, right: number): number {
+  while (right !== 0) {
+    const next = left % right;
+    left = right;
+    right = next;
+  }
+  return left || 1;
 }

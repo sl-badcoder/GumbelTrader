@@ -23,6 +23,10 @@ export type QuantQuestion = {
   tags: string[];
   text: string;
   answer: number;
+  answerFraction?: {
+    numerator: number;
+    denominator: number;
+  };
   explanation: string;
 };
 

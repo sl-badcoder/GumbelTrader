@@ -1,12 +1,13 @@
-import { randomIntInclusive } from "../../../shared/utils/random";
+import { randomIntInclusive, type RandomNumberGenerator } from "../../../shared/utils/random";
 import { decimalShiftDistractors, uniqueChoices } from "../distractorFactory";
 import type { IntuitiveMathPrompt, IntuitiveMathSession } from "../intuitiveMathTypes";
 import { formatNumber } from "../numberFormatting";
 
 export function generateDecimalPlacePrompt(
-  session: IntuitiveMathSession
+  session: IntuitiveMathSession,
+  random?: RandomNumberGenerator
 ): IntuitiveMathPrompt {
-  const promptCase = buildDecimalPlaceCase();
+  const promptCase = buildDecimalPlaceCase(random);
   const answer = formatNumber(promptCase.answer);
 
   return {
@@ -21,12 +22,12 @@ export function generateDecimalPlacePrompt(
   };
 }
 
-function buildDecimalPlaceCase() {
-  const form = randomIntInclusive(0, 3);
+function buildDecimalPlaceCase(random?: RandomNumberGenerator) {
+  const form = randomIntInclusive(0, 3, random);
 
   if (form === 0) {
-    const left = randomIntInclusive(12, 98) / 100;
-    const right = randomIntInclusive(2, 9) / 1000;
+    const left = randomIntInclusive(12, 98, random) / 100;
+    const right = randomIntInclusive(2, 9, random) / 1000;
     const answer = left * right;
     return {
       text: `${formatNumber(left)} x ${formatNumber(right)}`,
@@ -36,8 +37,8 @@ function buildDecimalPlaceCase() {
   }
 
   if (form === 1) {
-    const left = randomIntInclusive(35, 99) / 100;
-    const right = randomIntInclusive(11, Math.floor(left * 100) - 1) / 1000;
+    const left = randomIntInclusive(35, 99, random) / 100;
+    const right = randomIntInclusive(11, Math.floor(left * 100) - 1, random) / 1000;
     const answer = left - right;
     return {
       text: `${formatNumber(left)} - ${formatNumber(right)}`,
@@ -47,8 +48,8 @@ function buildDecimalPlaceCase() {
   }
 
   if (form === 2) {
-    const divisor = randomIntInclusive(2, 9) / 100;
-    const quotient = randomIntInclusive(4, 18);
+    const divisor = randomIntInclusive(2, 9, random) / 100;
+    const quotient = randomIntInclusive(4, 18, random);
     const dividend = divisor * quotient;
     return {
       text: `${formatNumber(dividend)} / ${formatNumber(divisor)}`,
@@ -57,8 +58,8 @@ function buildDecimalPlaceCase() {
     };
   }
 
-  const left = randomIntInclusive(12, 99) / 10;
-  const right = randomIntInclusive(2, 9) / 100;
+  const left = randomIntInclusive(12, 99, random) / 10;
+  const right = randomIntInclusive(2, 9, random) / 100;
   return {
     text: `${formatNumber(left)} x ${formatNumber(right)}`,
     answer: left * right,

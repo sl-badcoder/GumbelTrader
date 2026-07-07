@@ -60,6 +60,7 @@ export function createIntuitiveMathModule({
       attempts: 0,
       correct: 0,
       promptIndex: 0,
+      randomSeed: Math.floor(Math.random() * 2 ** 32),
       startedAt: Date.now()
     }),
     generatePrompt: generator,

@@ -1,5 +1,5 @@
 import { offByDistractors, pickCyclic, uniqueChoices } from "../distractorFactory";
-import { randomIntInclusive } from "../../../shared/utils/random";
+import { randomIntInclusive, type RandomNumberGenerator } from "../../../shared/utils/random";
 import type { IntuitiveMathPrompt, IntuitiveMathSession } from "../intuitiveMathTypes";
 import { formatNumber } from "../numberFormatting";
 
@@ -54,9 +54,10 @@ export function buildMissingOperandCase(formIndex: number): MissingOperandCase {
 }
 
 export function generateMissingOperandPrompt(
-  session: IntuitiveMathSession
+  session: IntuitiveMathSession,
+  random?: RandomNumberGenerator
 ): IntuitiveMathPrompt {
-  const promptCase = buildRandomMissingOperandCase();
+  const promptCase = buildRandomMissingOperandCase(random);
   const answer = formatNumber(promptCase.answer);
 
   return {
@@ -74,12 +75,12 @@ export function generateMissingOperandPrompt(
   };
 }
 
-function buildRandomMissingOperandCase(): MissingOperandCase {
-  const form = randomIntInclusive(0, 5);
+function buildRandomMissingOperandCase(random?: RandomNumberGenerator): MissingOperandCase {
+  const form = randomIntInclusive(0, 5, random);
 
   if (form === 0) {
-    const addend = randomIntInclusive(8, 79);
-    const answer = randomIntInclusive(10, 95);
+    const addend = randomIntInclusive(8, 79, random);
+    const answer = randomIntInclusive(10, 95, random);
     return {
       text: `? + ${addend} = ${answer + addend}`,
       answer,
@@ -89,8 +90,8 @@ function buildRandomMissingOperandCase(): MissingOperandCase {
   }
 
   if (form === 1) {
-    const subtrahend = randomIntInclusive(4, 38);
-    const answer = randomIntInclusive(12, 99);
+    const subtrahend = randomIntInclusive(4, 38, random);
+    const answer = randomIntInclusive(12, 99, random);
     return {
       text: `? - ${subtrahend} = ${answer - subtrahend}`,
       answer,
@@ -100,8 +101,8 @@ function buildRandomMissingOperandCase(): MissingOperandCase {
   }
 
   if (form === 2) {
-    const answer = randomIntInclusive(8, 88);
-    const result = randomIntInclusive(5, 65);
+    const answer = randomIntInclusive(8, 88, random);
+    const result = randomIntInclusive(5, 65, random);
     return {
       text: `${answer + result} - ? = ${result}`,
       answer,
@@ -111,8 +112,8 @@ function buildRandomMissingOperandCase(): MissingOperandCase {
   }
 
   if (form === 3) {
-    const factor = randomIntInclusive(3, 12);
-    const answer = randomIntInclusive(4, 18);
+    const factor = randomIntInclusive(3, 12, random);
+    const answer = randomIntInclusive(4, 18, random);
     return {
       text: `? x ${factor} = ${answer * factor}`,
       answer,
@@ -122,9 +123,9 @@ function buildRandomMissingOperandCase(): MissingOperandCase {
   }
 
   if (form === 4) {
-    const divisorTenths = randomIntInclusive(2, 9);
+    const divisorTenths = randomIntInclusive(2, 9, random);
     const divisor = divisorTenths / 10;
-    const quotient = randomIntInclusive(4, 18);
+    const quotient = randomIntInclusive(4, 18, random);
     const answer = divisor * quotient;
     return {
       text: `? / ${formatNumber(divisor)} = ${quotient}`,
@@ -134,9 +135,9 @@ function buildRandomMissingOperandCase(): MissingOperandCase {
     };
   }
 
-  const divisor = randomIntInclusive(2, 9);
-  const resultNumerator = randomIntInclusive(1, divisor - 1);
-  const answer = randomIntInclusive(2, 6);
+  const divisor = randomIntInclusive(2, 9, random);
+  const resultNumerator = randomIntInclusive(1, divisor - 1, random);
+  const answer = randomIntInclusive(2, 6, random);
   const dividendNumerator = resultNumerator * answer;
   return {
     text: `${dividendNumerator}/${divisor} / ? = ${resultNumerator}/${divisor}`,

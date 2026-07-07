@@ -1,11 +1,12 @@
-import { randomIntInclusive } from "../../../shared/utils/random";
+import { randomIntInclusive, type RandomNumberGenerator } from "../../../shared/utils/random";
 import { magnitudeBucketDistractors, uniqueChoices } from "../distractorFactory";
 import type { IntuitiveMathPrompt, IntuitiveMathSession } from "../intuitiveMathTypes";
 
 export function generateMagnitudeSensePrompt(
-  session: IntuitiveMathSession
+  session: IntuitiveMathSession,
+  random?: RandomNumberGenerator
 ): IntuitiveMathPrompt {
-  const promptCase = buildMagnitudeSenseCase();
+  const promptCase = buildMagnitudeSenseCase(random);
 
   return {
     id: `magnitude-sense-${session.promptIndex}`,
@@ -19,13 +20,13 @@ export function generateMagnitudeSensePrompt(
   };
 }
 
-function buildMagnitudeSenseCase() {
-  const form = randomIntInclusive(0, 2);
+function buildMagnitudeSenseCase(random?: RandomNumberGenerator) {
+  const form = randomIntInclusive(0, 2, random);
 
   if (form === 0) {
-    const left = randomIntInclusive(20, 90);
-    const right = randomIntInclusive(20, 90);
-    const third = randomIntInclusive(10, 90);
+    const left = randomIntInclusive(20, 90, random);
+    const right = randomIntInclusive(20, 90, random);
+    const third = randomIntInclusive(10, 90, random);
     const value = left * right * third;
     return {
       text: `${left} x ${right} x ${third} is closest to which bucket?`,
@@ -35,8 +36,8 @@ function buildMagnitudeSenseCase() {
   }
 
   if (form === 1) {
-    const base = randomIntInclusive(20, 95);
-    const power = randomIntInclusive(2, 3);
+    const base = randomIntInclusive(20, 95, random);
+    const power = randomIntInclusive(2, 3, random);
     return {
       text: `${base}^${power} is closest to 10^?`,
       answer: bucket(base ** power),
@@ -44,8 +45,8 @@ function buildMagnitudeSenseCase() {
     };
   }
 
-  const left = randomIntInclusive(11, 99) / 100;
-  const right = randomIntInclusive(2, 9) / 1000;
+  const left = randomIntInclusive(11, 99, random) / 100;
+  const right = randomIntInclusive(2, 9, random) / 1000;
   return {
     text: `${left.toFixed(2)} x ${right.toFixed(3)} is closest to which bucket?`,
     answer: bucket(left * right),

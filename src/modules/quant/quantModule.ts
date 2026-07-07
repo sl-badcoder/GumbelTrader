@@ -37,7 +37,10 @@ export function createQuantModule(
       const question = getQuantQuestion(session.settings.category, session.settings.difficulty);
       return {
         ...question,
-        expectedAnswer: formatQuantAnswer(question.answer)
+        expectedAnswer:
+          question.category === "probability" && question.answerFraction
+            ? `${question.answerFraction.numerator}/${question.answerFraction.denominator}`
+            : formatQuantAnswer(question.answer)
       };
     },
     validateAnswer: validateQuantAnswer,
@@ -59,4 +62,12 @@ export function createQuantModule(
 
 export function formatQuantAnswer(answer: number): string {
   return Number.isInteger(answer) ? String(answer) : answer.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+}
+
+export function formatQuantPromptAnswer(prompt: QuantPrompt): string {
+  if (prompt.category === "probability" && prompt.answerFraction) {
+    return `${prompt.answerFraction.numerator}/${prompt.answerFraction.denominator}`;
+  }
+
+  return formatQuantAnswer(prompt.answer);
 }

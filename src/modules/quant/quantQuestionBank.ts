@@ -7,8 +7,9 @@ export const quantQuestionBank: QuantQuestion[] = [
     category: "probability",
     difficulty: "easy",
     tags: ["probability", "coins", "at-least-one"],
-    text: "Three fair coins are tossed. What is the probability of getting at least one head? Enter a decimal to 4 places.",
-    answer: 0.875,
+    text: "Three fair coins are tossed. What is the probability of getting at least one head? Enter a reduced fraction like a/b.",
+    answer: 7 / 8,
+    answerFraction: { numerator: 7, denominator: 8 },
     explanation: "Use the complement: 1 - P(no heads) = 1 - (1/2)^3 = 7/8."
   },
   {
@@ -16,8 +17,9 @@ export const quantQuestionBank: QuantQuestion[] = [
     category: "probability",
     difficulty: "easy",
     tags: ["probability", "dice", "counting"],
-    text: "Two fair six-sided dice are rolled. What is the probability that the sum is 9? Enter a decimal to 4 places.",
-    answer: 0.1111,
+    text: "Two fair six-sided dice are rolled. What is the probability that the sum is 9? Enter a reduced fraction like a/b.",
+    answer: 1 / 9,
+    answerFraction: { numerator: 1, denominator: 9 },
     explanation: "There are 4 favorable outcomes: (3,6), (4,5), (5,4), (6,3), out of 36."
   },
   {
@@ -25,8 +27,9 @@ export const quantQuestionBank: QuantQuestion[] = [
     category: "probability",
     difficulty: "easy",
     tags: ["probability", "cards", "counting"],
-    text: "One card is drawn from a standard 52-card deck. What is the probability it is a heart or a king? Enter a decimal to 4 places.",
-    answer: 0.3077,
+    text: "One card is drawn from a standard 52-card deck. What is the probability it is a heart or a king? Enter a reduced fraction like a/b.",
+    answer: 4 / 13,
+    answerFraction: { numerator: 4, denominator: 13 },
     explanation: "There are 13 hearts plus 4 kings minus the king of hearts: 16 favorable cards."
   },
   {
@@ -34,8 +37,9 @@ export const quantQuestionBank: QuantQuestion[] = [
     category: "probability",
     difficulty: "medium",
     tags: ["probability", "cards", "dependent-events"],
-    text: "Two cards are drawn without replacement from a standard deck. What is the probability both are aces? Enter a decimal to 4 places.",
-    answer: 0.0045,
+    text: "Two cards are drawn without replacement from a standard deck. What is the probability both are aces? Enter a reduced fraction like a/b.",
+    answer: 1 / 221,
+    answerFraction: { numerator: 1, denominator: 221 },
     explanation: "Multiply dependent probabilities: (4/52) x (3/51)."
   },
   {
@@ -43,26 +47,19 @@ export const quantQuestionBank: QuantQuestion[] = [
     category: "probability",
     difficulty: "medium",
     tags: ["probability", "cards", "conditional-probability"],
-    text: "A card is known to be a face card. What is the probability it is red? Enter a decimal to 4 places.",
-    answer: 0.5,
+    text: "A card is known to be a face card. What is the probability it is red? Enter a reduced fraction like a/b.",
+    answer: 1 / 2,
+    answerFraction: { numerator: 1, denominator: 2 },
     explanation: "There are 12 face cards, and 6 of them are red."
-  },
-  {
-    id: "prob-ev-die-payout",
-    category: "probability",
-    difficulty: "medium",
-    tags: ["probability", "expected-value", "dice"],
-    text: "A fair die pays $10 on a 6 and $0 otherwise. What is the expected payout in dollars? Enter a decimal to 4 places.",
-    answer: 1.6667,
-    explanation: "Expected value is 10 x (1/6) + 0 x (5/6)."
   },
   {
     id: "prob-two-dice-at-least-one-six",
     category: "probability",
     difficulty: "medium",
     tags: ["probability", "dice", "at-least-one"],
-    text: "Two fair dice are rolled. What is the probability that at least one die shows a 6? Enter a decimal to 4 places.",
-    answer: 0.3056,
+    text: "Two fair dice are rolled. What is the probability that at least one die shows a 6? Enter a reduced fraction like a/b.",
+    answer: 11 / 36,
+    answerFraction: { numerator: 11, denominator: 36 },
     explanation: "Use the complement: 1 - P(no sixes) = 1 - (5/6)^2 = 11/36."
   },
   {
@@ -70,8 +67,9 @@ export const quantQuestionBank: QuantQuestion[] = [
     category: "probability",
     difficulty: "hard",
     tags: ["probability", "coins", "counting"],
-    text: "A fair coin is tossed 6 times. What is the probability of exactly 4 heads? Enter a decimal to 4 places.",
-    answer: 0.2344,
+    text: "A fair coin is tossed 6 times. What is the probability of exactly 4 heads? Enter a reduced fraction like a/b.",
+    answer: 15 / 64,
+    answerFraction: { numerator: 15, denominator: 64 },
     explanation: "Choose the 4 head positions: C(6,4) / 2^6 = 15/64."
   },
   {
@@ -79,8 +77,9 @@ export const quantQuestionBank: QuantQuestion[] = [
     category: "probability",
     difficulty: "hard",
     tags: ["probability", "conditional-probability", "counting"],
-    text: "A family has two children. Given that at least one is a boy, what is the probability both are boys? Enter a decimal to 4 places.",
-    answer: 0.3333,
+    text: "A family has two children. Given that at least one is a boy, what is the probability both are boys? Enter a reduced fraction like a/b.",
+    answer: 1 / 3,
+    answerFraction: { numerator: 1, denominator: 3 },
     explanation: "The possible ordered outcomes are BB, BG, and GB; only BB has two boys."
   },
   {
@@ -88,8 +87,9 @@ export const quantQuestionBank: QuantQuestion[] = [
     category: "probability",
     difficulty: "hard",
     tags: ["probability", "dice", "complement-counting"],
-    text: "Two fair dice are rolled. What is the probability their product is even? Enter a decimal to 4 places.",
-    answer: 0.75,
+    text: "Two fair dice are rolled. What is the probability their product is even? Enter a reduced fraction like a/b.",
+    answer: 3 / 4,
+    answerFraction: { numerator: 3, denominator: 4 },
     explanation: "The product is odd only when both dice are odd, which has probability (3/6)^2."
   },
   {
@@ -237,109 +237,130 @@ function generateProbabilityQuestion(
     difficulty === "easy"
       ? [coinAtLeastOneHead, diceExactSum, dieAtLeastValue]
       : difficulty === "medium"
-        ? [cardsSameSuit, diceAtLeastOneTarget, expectedDiePayout, coinExactlyHeads]
-        : [conditionalDieSum, cardsWithoutReplacement, binomialAtLeastHeads, expectedTwoOutcomeGame];
+        ? [cardsSameSuit, diceAtLeastOneTarget, coinExactlyHeads]
+        : [conditionalDieSum, cardsWithoutReplacement, binomialAtLeastHeads];
   return templates[randomIntInclusive(0, templates.length - 1, random)]!(random);
+}
+
+function makeProbabilityQuestion(
+  question: Omit<QuantQuestion, "answer" | "answerFraction">,
+  numerator: number,
+  denominator: number
+): QuantQuestion {
+  const reduced = reduceFraction(numerator, denominator);
+  return {
+    ...question,
+    answer: reduced.numerator / reduced.denominator,
+    answerFraction: reduced
+  };
 }
 
 function coinAtLeastOneHead(random: RandomNumberGenerator): QuantQuestion {
   const tosses = randomIntInclusive(2, 7, random);
-  return {
-    id: `prob-coin-at-least-one-${tosses}`,
-    category: "probability",
-    difficulty: "easy",
-    tags: ["probability", "coins", "complement-counting"],
-    text: `${tosses} fair coins are tossed. What is the probability of getting at least one head? Enter a decimal to 4 places.`,
-    answer: 1 - 1 / 2 ** tosses,
-    explanation: `Use the complement: 1 - P(no heads) = 1 - (1/2)^${tosses}.`
-  };
+  const denominator = 2 ** tosses;
+  return makeProbabilityQuestion(
+    {
+      id: `prob-coin-at-least-one-${tosses}`,
+      category: "probability",
+      difficulty: "easy",
+      tags: ["probability", "coins", "complement-counting"],
+      text: `${tosses} fair coins are tossed. What is the probability of getting at least one head? Enter a reduced fraction like a/b.`,
+      explanation: `Use the complement: 1 - P(no heads) = 1 - (1/2)^${tosses}.`
+    },
+    denominator - 1,
+    denominator
+  );
 }
 
 function diceExactSum(random: RandomNumberGenerator): QuantQuestion {
   const sum = randomIntInclusive(3, 11, random);
   const favorable = countDiceSum(sum);
-  return {
-    id: `prob-dice-sum-${sum}`,
-    category: "probability",
-    difficulty: "easy",
-    tags: ["probability", "dice", "counting"],
-    text: `Two fair six-sided dice are rolled. What is the probability that the sum is ${sum}? Enter a decimal to 4 places.`,
-    answer: favorable / 36,
-    explanation: `There are ${favorable} favorable outcomes out of 36 equally likely rolls.`
-  };
+  return makeProbabilityQuestion(
+    {
+      id: `prob-dice-sum-${sum}`,
+      category: "probability",
+      difficulty: "easy",
+      tags: ["probability", "dice", "counting"],
+      text: `Two fair six-sided dice are rolled. What is the probability that the sum is ${sum}? Enter a reduced fraction like a/b.`,
+      explanation: `There are ${favorable} favorable outcomes out of 36 equally likely rolls.`
+    },
+    favorable,
+    36
+  );
 }
 
 function dieAtLeastValue(random: RandomNumberGenerator): QuantQuestion {
   const threshold = randomIntInclusive(2, 6, random);
   const favorable = 7 - threshold;
-  return {
-    id: `prob-die-at-least-${threshold}`,
-    category: "probability",
-    difficulty: "easy",
-    tags: ["probability", "dice", "counting"],
-    text: `A fair six-sided die is rolled. What is the probability of rolling at least ${threshold}? Enter a decimal to 4 places.`,
-    answer: favorable / 6,
-    explanation: `${favorable} faces are at least ${threshold}, out of 6 total faces.`
-  };
+  return makeProbabilityQuestion(
+    {
+      id: `prob-die-at-least-${threshold}`,
+      category: "probability",
+      difficulty: "easy",
+      tags: ["probability", "dice", "counting"],
+      text: `A fair six-sided die is rolled. What is the probability of rolling at least ${threshold}? Enter a reduced fraction like a/b.`,
+      explanation: `${favorable} faces are at least ${threshold}, out of 6 total faces.`
+    },
+    favorable,
+    6
+  );
 }
 
 function cardsSameSuit(random: RandomNumberGenerator): QuantQuestion {
   const draws = randomIntInclusive(2, 4, random);
-  let probability = 1;
+  let numerator = 1;
+  let denominator = 1;
   for (let draw = 1; draw < draws; draw += 1) {
-    probability *= (13 - draw) / (52 - draw);
+    numerator *= 13 - draw;
+    denominator *= 52 - draw;
   }
-  return {
-    id: `prob-cards-same-suit-${draws}`,
-    category: "probability",
-    difficulty: "medium",
-    tags: ["probability", "cards", "dependent-events"],
-    text: `${draws} cards are drawn without replacement from a standard deck. What is the probability they are all the same suit? Enter a decimal to 4 places.`,
-    answer: probability,
-    explanation: "After the first card fixes the suit, each later card must match that suit."
-  };
+  return makeProbabilityQuestion(
+    {
+      id: `prob-cards-same-suit-${draws}`,
+      category: "probability",
+      difficulty: "medium",
+      tags: ["probability", "cards", "dependent-events"],
+      text: `${draws} cards are drawn without replacement from a standard deck. What is the probability they are all the same suit? Enter a reduced fraction like a/b.`,
+      explanation: "After the first card fixes the suit, each later card must match that suit."
+    },
+    numerator,
+    denominator
+  );
 }
 
 function diceAtLeastOneTarget(random: RandomNumberGenerator): QuantQuestion {
   const dice = randomIntInclusive(2, 4, random);
   const target = randomIntInclusive(1, 6, random);
-  return {
-    id: `prob-dice-at-least-one-${target}-${dice}`,
-    category: "probability",
-    difficulty: "medium",
-    tags: ["probability", "dice", "complement-counting"],
-    text: `${dice} fair dice are rolled. What is the probability that at least one die shows a ${target}? Enter a decimal to 4 places.`,
-    answer: 1 - (5 / 6) ** dice,
-    explanation: `Use the complement: 1 - P(no ${target}s) = 1 - (5/6)^${dice}.`
-  };
-}
-
-function expectedDiePayout(random: RandomNumberGenerator): QuantQuestion {
-  const payout = randomIntInclusive(4, 20, random);
-  const winningFaces = randomIntInclusive(1, 3, random);
-  return {
-    id: `prob-ev-die-${payout}-${winningFaces}`,
-    category: "probability",
-    difficulty: "medium",
-    tags: ["probability", "expected-value", "dice"],
-    text: `A fair die pays $${payout} on ${winningFaces} winning ${winningFaces === 1 ? "face" : "faces"} and $0 otherwise. What is the expected payout in dollars? Enter a decimal to 4 places.`,
-    answer: payout * (winningFaces / 6),
-    explanation: `Expected value is ${payout} x ${winningFaces}/6.`
-  };
+  const denominator = 6 ** dice;
+  return makeProbabilityQuestion(
+    {
+      id: `prob-dice-at-least-one-${target}-${dice}`,
+      category: "probability",
+      difficulty: "medium",
+      tags: ["probability", "dice", "complement-counting"],
+      text: `${dice} fair dice are rolled. What is the probability that at least one die shows a ${target}? Enter a reduced fraction like a/b.`,
+      explanation: `Use the complement: 1 - P(no ${target}s) = 1 - (5/6)^${dice}.`
+    },
+    denominator - 5 ** dice,
+    denominator
+  );
 }
 
 function coinExactlyHeads(random: RandomNumberGenerator): QuantQuestion {
   const tosses = randomIntInclusive(4, 8, random);
   const heads = randomIntInclusive(1, tosses - 1, random);
-  return {
-    id: `prob-binomial-exact-${heads}-of-${tosses}`,
-    category: "probability",
-    difficulty: "medium",
-    tags: ["probability", "coins", "binomial"],
-    text: `A fair coin is tossed ${tosses} times. What is the probability of exactly ${heads} heads? Enter a decimal to 4 places.`,
-    answer: combination(tosses, heads) / 2 ** tosses,
-    explanation: `Choose the head positions: C(${tosses},${heads}) / 2^${tosses}.`
-  };
+  return makeProbabilityQuestion(
+    {
+      id: `prob-binomial-exact-${heads}-of-${tosses}`,
+      category: "probability",
+      difficulty: "medium",
+      tags: ["probability", "coins", "binomial"],
+      text: `A fair coin is tossed ${tosses} times. What is the probability of exactly ${heads} heads? Enter a reduced fraction like a/b.`,
+      explanation: `Choose the head positions: C(${tosses},${heads}) / 2^${tosses}.`
+    },
+    combination(tosses, heads),
+    2 ** tosses
+  );
 }
 
 function conditionalDieSum(random: RandomNumberGenerator): QuantQuestion {
@@ -349,34 +370,42 @@ function conditionalDieSum(random: RandomNumberGenerator): QuantQuestion {
     .filter((sum) => sum >= knownMinimum)
     .reduce((total, sum) => total + countDiceSum(sum), 0);
   const numerator = countDiceSum(targetSum);
-  return {
-    id: `prob-conditional-dice-${targetSum}-given-${knownMinimum}`,
-    category: "probability",
-    difficulty: "hard",
-    tags: ["probability", "dice", "conditional-probability"],
-    text: `Two fair dice are rolled. Given that their sum is at least ${knownMinimum}, what is the probability that the sum is ${targetSum}? Enter a decimal to 4 places.`,
-    answer: numerator / denominator,
-    explanation: `Restrict the sample space to sums at least ${knownMinimum}, then count the ${targetSum} outcomes.`
-  };
+  return makeProbabilityQuestion(
+    {
+      id: `prob-conditional-dice-${targetSum}-given-${knownMinimum}`,
+      category: "probability",
+      difficulty: "hard",
+      tags: ["probability", "dice", "conditional-probability"],
+      text: `Two fair dice are rolled. Given that their sum is at least ${knownMinimum}, what is the probability that the sum is ${targetSum}? Enter a reduced fraction like a/b.`,
+      explanation: `Restrict the sample space to sums at least ${knownMinimum}, then count the ${targetSum} outcomes.`
+    },
+    numerator,
+    denominator
+  );
 }
 
 function cardsWithoutReplacement(random: RandomNumberGenerator): QuantQuestion {
   const ranks = ["aces", "kings", "queens", "jacks"];
   const rank = ranks[randomIntInclusive(0, ranks.length - 1, random)] ?? "aces";
   const draws = randomIntInclusive(2, 3, random);
-  let probability = 1;
+  let numerator = 1;
+  let denominator = 1;
   for (let draw = 0; draw < draws; draw += 1) {
-    probability *= (4 - draw) / (52 - draw);
+    numerator *= 4 - draw;
+    denominator *= 52 - draw;
   }
-  return {
-    id: `prob-cards-${draws}-${rank}`,
-    category: "probability",
-    difficulty: "hard",
-    tags: ["probability", "cards", "dependent-events"],
-    text: `${draws} cards are drawn without replacement from a standard deck. What is the probability all are ${rank}? Enter a decimal to 4 places.`,
-    answer: probability,
-    explanation: "Multiply the shrinking favorable-rank count over the shrinking deck size."
-  };
+  return makeProbabilityQuestion(
+    {
+      id: `prob-cards-${draws}-${rank}`,
+      category: "probability",
+      difficulty: "hard",
+      tags: ["probability", "cards", "dependent-events"],
+      text: `${draws} cards are drawn without replacement from a standard deck. What is the probability all are ${rank}? Enter a reduced fraction like a/b.`,
+      explanation: "Multiply the shrinking favorable-rank count over the shrinking deck size."
+    },
+    numerator,
+    denominator
+  );
 }
 
 function binomialAtLeastHeads(random: RandomNumberGenerator): QuantQuestion {
@@ -386,30 +415,18 @@ function binomialAtLeastHeads(random: RandomNumberGenerator): QuantQuestion {
   for (let count = heads; count <= tosses; count += 1) {
     favorable += combination(tosses, count);
   }
-  return {
-    id: `prob-binomial-at-least-${heads}-of-${tosses}`,
-    category: "probability",
-    difficulty: "hard",
-    tags: ["probability", "coins", "binomial"],
-    text: `A fair coin is tossed ${tosses} times. What is the probability of at least ${heads} heads? Enter a decimal to 4 places.`,
-    answer: favorable / 2 ** tosses,
-    explanation: `Add C(${tosses},k) for k = ${heads} through ${tosses}, then divide by 2^${tosses}.`
-  };
-}
-
-function expectedTwoOutcomeGame(random: RandomNumberGenerator): QuantQuestion {
-  const winProbabilityDenominator = randomIntInclusive(3, 8, random);
-  const payout = randomIntInclusive(8, 30, random);
-  const cost = randomIntInclusive(1, 10, random);
-  return {
-    id: `prob-ev-game-${payout}-${cost}-${winProbabilityDenominator}`,
-    category: "probability",
-    difficulty: "hard",
-    tags: ["probability", "expected-value"],
-    text: `A game costs $${cost} to play and pays $${payout} with probability 1/${winProbabilityDenominator}; otherwise it pays $0. What is the expected net value in dollars? Enter a decimal to 4 places.`,
-    answer: payout / winProbabilityDenominator - cost,
-    explanation: `Expected net value is payout x probability minus cost: ${payout}/${winProbabilityDenominator} - ${cost}.`
-  };
+  return makeProbabilityQuestion(
+    {
+      id: `prob-binomial-at-least-${heads}-of-${tosses}`,
+      category: "probability",
+      difficulty: "hard",
+      tags: ["probability", "coins", "binomial"],
+      text: `A fair coin is tossed ${tosses} times. What is the probability of at least ${heads} heads? Enter a reduced fraction like a/b.`,
+      explanation: `Add C(${tosses},k) for k = ${heads} through ${tosses}, then divide by 2^${tosses}.`
+    },
+    favorable,
+    2 ** tosses
+  );
 }
 
 function generateCombinatoricsQuestion(
@@ -620,4 +637,21 @@ function combination(total: number, chosen: number): number {
 
   const reducedChosen = Math.min(chosen, total - chosen);
   return permutation(total, reducedChosen) / factorial(reducedChosen);
+}
+
+function reduceFraction(numerator: number, denominator: number) {
+  const divisor = gcd(Math.abs(numerator), Math.abs(denominator));
+  return {
+    numerator: numerator / divisor,
+    denominator: denominator / divisor
+  };
+}
+
+function gcd(left: number, right: number): number {
+  while (right !== 0) {
+    const next = left % right;
+    left = right;
+    right = next;
+  }
+  return left || 1;
 }

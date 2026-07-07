@@ -1,11 +1,12 @@
-import { randomIntInclusive } from "../../../shared/utils/random";
+import { randomIntInclusive, type RandomNumberGenerator } from "../../../shared/utils/random";
 import { uniqueChoices } from "../distractorFactory";
 import type { IntuitiveMathPrompt, IntuitiveMathSession } from "../intuitiveMathTypes";
 
 export function generateFractionTrapPrompt(
-  session: IntuitiveMathSession
+  session: IntuitiveMathSession,
+  random?: RandomNumberGenerator
 ): IntuitiveMathPrompt {
-  const promptCase = buildFractionTrapCase();
+  const promptCase = buildFractionTrapCase(random);
 
   return {
     id: `fraction-trap-${session.promptIndex}`,
@@ -19,13 +20,13 @@ export function generateFractionTrapPrompt(
   };
 }
 
-function buildFractionTrapCase() {
-  const form = randomIntInclusive(0, 3);
+function buildFractionTrapCase(random?: RandomNumberGenerator) {
+  const form = randomIntInclusive(0, 3, random);
 
   if (form === 0) {
-    const denominator = randomIntInclusive(5, 16);
-    const left = randomIntInclusive(1, denominator - 2);
-    const right = randomIntInclusive(1, denominator - left - 1);
+    const denominator = randomIntInclusive(5, 16, random);
+    const left = randomIntInclusive(1, denominator - 2, random);
+    const right = randomIntInclusive(1, denominator - left - 1, random);
     const answer = reduceFraction(left + right, denominator);
     return {
       text: `${left}/${denominator} + ${right}/${denominator}`,
@@ -36,10 +37,10 @@ function buildFractionTrapCase() {
   }
 
   if (form === 1) {
-    const denominator = randomIntInclusive(4, 12);
-    const scale = randomIntInclusive(2, 4);
-    const leftNumerator = randomIntInclusive(2, denominator - 1);
-    const rightNumerator = randomIntInclusive(1, leftNumerator * scale - 1);
+    const denominator = randomIntInclusive(4, 12, random);
+    const scale = randomIntInclusive(2, 4, random);
+    const leftNumerator = randomIntInclusive(2, denominator - 1, random);
+    const rightNumerator = randomIntInclusive(1, leftNumerator * scale - 1, random);
     const commonDenominator = denominator * scale;
     const answer = reduceFraction(leftNumerator * scale - rightNumerator, commonDenominator);
     return {
@@ -51,10 +52,10 @@ function buildFractionTrapCase() {
   }
 
   if (form === 2) {
-    const a = randomIntInclusive(2, 8);
-    const b = randomIntInclusive(a + 1, 12);
-    const c = randomIntInclusive(2, 8);
-    const d = randomIntInclusive(c + 1, 12);
+    const a = randomIntInclusive(2, 8, random);
+    const b = randomIntInclusive(a + 1, 12, random);
+    const c = randomIntInclusive(2, 8, random);
+    const d = randomIntInclusive(c + 1, 12, random);
     const answer = reduceFraction(a * d, b * c);
     return {
       text: `${a}/${b} / ${c}/${d}`,
@@ -64,10 +65,10 @@ function buildFractionTrapCase() {
     };
   }
 
-  const multiplierNumerator = randomIntInclusive(2, 6);
-  const multiplierDenominator = randomIntInclusive(multiplierNumerator + 1, 10);
-  const answerNumerator = randomIntInclusive(2, 8);
-  const answerDenominator = randomIntInclusive(answerNumerator + 1, 12);
+  const multiplierNumerator = randomIntInclusive(2, 6, random);
+  const multiplierDenominator = randomIntInclusive(multiplierNumerator + 1, 10, random);
+  const answerNumerator = randomIntInclusive(2, 8, random);
+  const answerDenominator = randomIntInclusive(answerNumerator + 1, 12, random);
   const product = reduceFraction(answerNumerator * multiplierNumerator, answerDenominator * multiplierDenominator);
   const answer = reduceFraction(answerNumerator, answerDenominator);
   return {
