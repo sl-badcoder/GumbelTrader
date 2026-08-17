@@ -266,11 +266,6 @@ export default function App() {
       return;
     }
 
-    if (topic === "sequences") {
-      navigate({ name: "sequence-settings" }, null);
-      return;
-    }
-
     if (topic === "probability") {
       navigate({ name: "probability-settings" }, null);
       return;

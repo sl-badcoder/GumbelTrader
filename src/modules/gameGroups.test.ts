@@ -9,6 +9,10 @@ describe("game module registry and groups", () => {
     expect(availableProblemModules.map((module) => module.id)).not.toContain("eighty-in-eight");
   });
 
+  it("does not expose sequence practice in the visible module list", () => {
+    expect(availableProblemModules.map((module) => module.id)).not.toContain("sequences");
+  });
+
   it("exposes the new 80-in-8 exactly once with the countdown icon metadata", () => {
     const matches = availableProblemModules.filter((module) => module.id === "eighty-in-eight-mc");
 

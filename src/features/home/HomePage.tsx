@@ -2,7 +2,6 @@ import { Button } from "../../shared/components/Button";
 
 export type PracticeTopic =
   | "arithmetic"
-  | "sequences"
   | "probability"
   | "combinatorics"
   | "eightyInEight"
@@ -22,11 +21,6 @@ const practiceTopicLinks: Array<{
     topic: "arithmetic",
     href: "/arithmetic-practice/",
     label: "Timed arithmetic practice"
-  },
-  {
-    topic: "sequences",
-    href: "/sequence-practice/",
-    label: "Number sequence practice"
   },
   {
     topic: "probability",
@@ -63,10 +57,10 @@ export function HomePage({ onBrowseGames, onOpenPracticeTopic }: HomePageProps) 
         </p>
 
         <p>
-          Start with timed arithmetic practice, then expand into number sequences,
-          fractions, percentages, probability questions, combinatorics questions,
-          and mixed challenge modes. Each session is designed to be fast,
-          measurable, and distraction-free.
+          Start with timed arithmetic practice, then expand into fractions,
+          percentages, probability questions, combinatorics questions, and mixed
+          challenge modes. Each session is designed to be fast, measurable, and
+          distraction-free.
         </p>
 
         <p>

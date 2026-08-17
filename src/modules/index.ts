@@ -26,4 +26,6 @@ export const problemModules = {
 
 export type ProblemModuleId = keyof typeof problemModules;
 
-export const availableProblemModules = Object.values(problemModules);
+export const availableProblemModules = Object.values(problemModules).filter(
+  (module) => module.id !== sequenceModule.id
+);
